@@ -1,6 +1,5 @@
 package com.nbu.CSCB634.model.diploma.assignment;
 
-import com.nbu.CSCB634.model.Teacher;
 import com.nbu.CSCB634.model.diploma.thesis.DiplomaThesis;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -12,7 +11,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)

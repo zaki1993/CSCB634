@@ -1,7 +1,6 @@
 package com.nbu.CSCB634.controller;
 
 import com.nbu.CSCB634.controller.diploma.thesis.dto.DiplomaThesisReportDTO;
-import com.nbu.CSCB634.model.Student;
 import com.nbu.CSCB634.model.diploma.thesis.DiplomaThesis;
 import com.nbu.CSCB634.service.StudentService;
 import com.nbu.CSCB634.service.TeacherService;

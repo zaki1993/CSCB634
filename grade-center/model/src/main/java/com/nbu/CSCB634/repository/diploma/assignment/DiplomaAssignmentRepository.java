@@ -1,7 +1,6 @@
 package com.nbu.CSCB634.repository.diploma.assignment;
 
 import com.nbu.CSCB634.model.diploma.assignment.DiplomaAssignment;
-import com.nbu.CSCB634.model.Teacher;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

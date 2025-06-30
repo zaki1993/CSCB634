@@ -1,6 +1,5 @@
 package com.nbu.CSCB634.repository;
 
-import com.nbu.CSCB634.model.Teacher;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

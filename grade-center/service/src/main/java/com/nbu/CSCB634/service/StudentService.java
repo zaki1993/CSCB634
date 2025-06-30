@@ -1,6 +1,5 @@
 package com.nbu.CSCB634.service;
 
-import com.nbu.CSCB634.model.Student;
 import com.nbu.CSCB634.repository.StudentRepository;
 import com.nbu.CSCB634.service.exceptions.StudentNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;

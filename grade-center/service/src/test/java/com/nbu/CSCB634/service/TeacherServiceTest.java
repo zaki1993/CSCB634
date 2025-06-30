@@ -1,6 +1,5 @@
 package com.nbu.CSCB634.service;
 
-import com.nbu.CSCB634.model.Teacher;
 import com.nbu.CSCB634.repository.TeacherRepository;
 import com.nbu.CSCB634.repository.diploma.defense.DiplomaDefenseRepository;
 import org.junit.jupiter.api.Test;

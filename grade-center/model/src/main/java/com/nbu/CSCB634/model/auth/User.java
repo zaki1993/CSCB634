@@ -1,5 +1,6 @@
 package com.nbu.CSCB634.model.auth;
 
+import com.nbu.CSCB634.model.RoleType;
 import jakarta.persistence.*;
 
 import lombok.Data;
@@ -9,7 +10,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 
 @Entity
-@Table(name = "graduation_system_users")
+@Table(name = "grade_center_users")
 @Data
 public class User implements UserDetails {
     @Id
@@ -23,7 +24,7 @@ public class User implements UserDetails {
     private String password;
 
     @Enumerated(EnumType.ORDINAL)
-    private UserType userType;
+    private RoleType role;
 
     // Implement UserDetails methods
     @Override

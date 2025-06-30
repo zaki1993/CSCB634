@@ -1,4 +1,4 @@
-rootProject.name = "graduation-system"
+rootProject.name = "grade-center"
 
 include 'app'
 include 'controller'

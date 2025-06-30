@@ -16,14 +16,14 @@ class TeacherTest {
 
     @BeforeEach
     void setUp() {
-        teacher = new Teacher("Dr. Smith", TeacherType.ASSISTANT);
+        teacher = new Teacher("Dr. Smith", RoleType.ASSISTANT);
     }
 
     @Test
     void testConstructor() {
         assertNotNull(teacher);
         assertEquals("Dr. Smith", teacher.getName());
-        assertEquals(TeacherType.ASSISTANT, teacher.getType());
+        assertEquals(RoleType.ASSISTANT, teacher.getType());
     }
 
     @Test
@@ -34,8 +34,8 @@ class TeacherTest {
 
     @Test
     void testSetType() {
-        teacher.setType(TeacherType.PROFESSOR);
-        assertEquals(TeacherType.PROFESSOR, teacher.getType());
+        teacher.setType(RoleType.PROFESSOR);
+        assertEquals(RoleType.PROFESSOR, teacher.getType());
     }
 
     @Test

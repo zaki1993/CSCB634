@@ -2,7 +2,6 @@ package com.nbu.CSCB634.controller.diploma.defense;
 
 import com.nbu.CSCB634.controller.diploma.defense.dto.DiplomaDefenseDTO;
 import com.nbu.CSCB634.global.AccessControlConfig;
-import com.nbu.CSCB634.model.Teacher;
 import com.nbu.CSCB634.model.diploma.defense.DiplomaDefense;
 import com.nbu.CSCB634.model.diploma.thesis.DiplomaThesis;
 import com.nbu.CSCB634.model.diploma.thesis.review.ReviewOutcome;

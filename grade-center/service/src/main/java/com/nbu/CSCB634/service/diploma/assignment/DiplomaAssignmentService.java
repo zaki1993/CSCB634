@@ -1,7 +1,6 @@
 package com.nbu.CSCB634.service.diploma.assignment;
 
 import com.nbu.CSCB634.model.diploma.assignment.DiplomaAssignment;
-import com.nbu.CSCB634.model.Teacher;
 import com.nbu.CSCB634.repository.diploma.assignment.DiplomaAssignmentRepository;
 import com.nbu.CSCB634.service.exceptions.DiplomaAssignmentNotFoundException;
 import lombok.RequiredArgsConstructor;

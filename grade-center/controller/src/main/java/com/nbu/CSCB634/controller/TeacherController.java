@@ -1,6 +1,5 @@
 package com.nbu.CSCB634.controller;
 
-import com.nbu.CSCB634.model.Teacher;
 import com.nbu.CSCB634.service.TeacherService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;

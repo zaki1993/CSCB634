@@ -2,8 +2,6 @@ package com.nbu.CSCB634.controller.diploma.assignment;
 
 import com.nbu.CSCB634.global.AccessControlConfig;
 import com.nbu.CSCB634.model.diploma.assignment.DiplomaAssignment;
-import com.nbu.CSCB634.model.Student;
-import com.nbu.CSCB634.model.Teacher;
 import com.nbu.CSCB634.service.diploma.assignment.DiplomaAssignmentService;
 import com.nbu.CSCB634.service.StudentService;
 import com.nbu.CSCB634.service.TeacherService;
