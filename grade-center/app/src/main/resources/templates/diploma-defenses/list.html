@@ -135,7 +135,7 @@
 <div class="container">
     <div class="header">
         <h1>Diploma Defenses</h1>
-        <div th:if="${T(com.nbu.CSCB869.global.AccessControlConfig).isTeacher()}">
+        <div th:if="${T(com.nbu.CSCB634.global.AccessControlConfig).isTeacher()}">
             <a href="/diploma-defenses/schedule" class="create-button">Schedule Diploma Defense</a>
         </div>
     </div>
@@ -148,7 +148,7 @@
                 <th>Location</th>
                 <th>Students</th>
                 <th>Teachers</th>
-                <th th:if="${T(com.nbu.CSCB869.global.AccessControlConfig).isTeacher()}">Actions</th>
+                <th th:if="${T(com.nbu.CSCB634.global.AccessControlConfig).isTeacher()}">Actions</th>
             </tr>
             </thead>
             <tbody>
@@ -191,11 +191,11 @@
                 </td>
 
                 <td>
-                    <a th:if="${T(com.nbu.CSCB869.global.AccessControlConfig).isTeacher()}"
+                    <a th:if="${T(com.nbu.CSCB634.global.AccessControlConfig).isTeacher()}"
                        th:href="@{'/diploma-defenses/edit/' + ${defense.id}}"
                        class="btn btn-secondary"
                        th:classappend="${defense.isReadOnly() ? 'disabled' : ''}">Edit</a>
-                    <button th:if="${T(com.nbu.CSCB869.global.AccessControlConfig).isTeacher()}"
+                    <button th:if="${T(com.nbu.CSCB634.global.AccessControlConfig).isTeacher()}"
                             class="btn btn-danger btn-sm"
                             th:attr="data-bs-target='#confirmDeleteModal' + ${defense.id}"
                             th:disabled="${defense.isReadOnly()}">

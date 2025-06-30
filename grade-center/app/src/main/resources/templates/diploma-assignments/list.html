@@ -109,7 +109,7 @@
 <div class="container">
     <div class="header">
         <h1>Diploma Assignments</h1>
-        <div th:if="${T(com.nbu.CSCB869.global.AccessControlConfig).isTeacher()}">
+        <div th:if="${T(com.nbu.CSCB634.global.AccessControlConfig).isTeacher()}">
             <a href="/diploma-assignments/create" class="create-button">Create Diploma Assignment</a>
         </div>
     </div>
@@ -170,7 +170,7 @@
                     <a th:href="@{/diploma-assignments/edit/{id}(id=${assignment.id})}" class="btn btn-primary" role="button">View Assignment</a>
 
                     <!-- only teachers -->
-                    <button th:if="${T(com.nbu.CSCB869.global.AccessControlConfig).isTeacher() && !assignment.approved}"
+                    <button th:if="${T(com.nbu.CSCB634.global.AccessControlConfig).isTeacher() && !assignment.approved}"
                             th:disabled="${assignment.approved}"
                             th:classappend="${assignment.approved ? 'disabled' : ''}"
                             type="button" class="btn btn-primary" th:onclick="'confirmApprove(' + ${assignment.id} + ')'">Approve Assignment</button>
@@ -178,7 +178,7 @@
                     th:disabled="${!assignment.approved}"
                     th:classappend="${!assignment.approved ? 'disabled' : ''}"
                      -->
-                    <a th:if="${T(com.nbu.CSCB869.global.AccessControlConfig).isTeacher()
+                    <a th:if="${T(com.nbu.CSCB634.global.AccessControlConfig).isTeacher()
                        and (#bools.isTrue(assignment?.approved))
                        and (#bools.isTrue(assignment?.hasDiplomaThesis))
                        and assignment?.thesis?.uploadTime != null}"
@@ -187,7 +187,7 @@
                        th:text="${assignment.thesis.review != null ? 'Update Review' : 'Review Thesis'}"/>
 
                     <!-- only students -->
-                    <a th:if="${userOnly != null && userOnly && T(com.nbu.CSCB869.global.AccessControlConfig).isStudent()}"
+                    <a th:if="${userOnly != null && userOnly && T(com.nbu.CSCB634.global.AccessControlConfig).isStudent()}"
                        th:disabled="${!assignment.approved}"
                        th:classappend="${!assignment.approved ? 'disabled' : ''}"
                        th:href="@{${assignment.hasDiplomaThesis ? '/diploma-thesis/edit/' + assignment.thesis.id : '/diploma-thesis/' + assignment.id + '/create'}}"

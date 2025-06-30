@@ -76,7 +76,7 @@
                     <td th:text="${thesis.assignment.student.name}"></td>
                     <td>
                         <!-- Teachers can edit grades -->
-                        <form th:if="${T(com.nbu.CSCB869.global.AccessControlConfig).isTeacher() && isEditable[thesis.id]}"
+                        <form th:if="${T(com.nbu.CSCB634.global.AccessControlConfig).isTeacher() && isEditable[thesis.id]}"
                               th:action="@{/diploma-defenses/grades/update/{defenseId}/{thesisId}(defenseId=${diplomaDefense.id}, thesisId=${thesis.id})}"
                               method="post">
                             <input type="number" class="form-control" name="grade" min="0" max="100" step="0.1"
@@ -85,7 +85,7 @@
                         </form>
 
                         <!-- Students can only view grades -->
-                        <span th:if="${T(com.nbu.CSCB869.global.AccessControlConfig).isStudent()}"
+                        <span th:if="${T(com.nbu.CSCB634.global.AccessControlConfig).isStudent()}"
                               th:text="${grades[thesis.id] != null ? grades[thesis.id] : 'Not Graded'}">
                         </span>
                     </td>
