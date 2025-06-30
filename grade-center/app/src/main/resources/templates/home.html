@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<div th:replace="~{header.html}"></div>
+<body class="d-flex flex-column min-vh-100">
+    <main class="container mt-5">
+        <h1 class="text-center mb-4">Dashboard</h1>
+
+        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
+            <!-- Students Card -->
+            <div class="col">
+                <div class="card shadow-sm border-primary">
+                    <div class="card-body">
+                        <h5 class="card-title">Students</h5>
+                        <p class="card-text">Manage student information and assignments.</p>
+                        <p class="fs-4">Total: <span th:text="${studentsCount}" class="fw-bold"></span></p>
+                        <a href="/students" class="btn btn-primary">Go to Students</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Teachers Card -->
+            <div class="col">
+                <div class="card shadow-sm border-primary">
+                    <div class="card-body">
+                        <h5 class="card-title">Teachers</h5>
+                        <p class="card-text">Manage teacher information and assignments.</p>
+                        <p class="fs-4">Total: <span th:text="${teachersCount}" class="fw-bold"></span></p>
+                        <a href="/teachers" class="btn btn-primary">Go to Teachers</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Diploma Assignments Card -->
+            <div class="col">
+                <div class="card shadow-sm border-primary">
+                    <div class="card-body">
+                        <h5 class="card-title">Diploma Assignments</h5>
+                        <p class="card-text">View and manage diploma assignments and their statuses.</p>
+                        <p class="fs-4">Total: <span th:text="${diplomaAssignmentsCount}" class="fw-bold"></span></p>
+                        <a href="/diploma-assignments" class="btn btn-primary">Go to Diploma Assignments</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reports Card -->
+            <div class="col">
+                <div class="card shadow-sm border-primary">
+                    <div class="card-body">
+                        <h5 class="card-title">Reports</h5>
+                        <p class="card-text">Manage reports.</p>
+                        <a href="/reports" class="btn btn-primary">Go to Reports</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Diploma Defenses Card -->
+            <div class="col">
+                <div class="card shadow-sm border-primary">
+                    <div class="card-body">
+                        <h5 class="card-title">Diploma Defenses</h5>
+                        <p class="card-text">View and manage diploma defense records.</p>
+                        <p class="fs-4">Total: <span th:text="${diplomaDefensesCount}" class="fw-bold"></span></p>
+                        <a href="/diploma-defenses" class="btn btn-primary">Go to Diploma Defenses</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div th:replace="~{footer.html}"></div>
+</body>
+</html>

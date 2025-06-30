@@ -1,0 +1,45 @@
+server:
+  port: 8080
+  # Error path to handle errors
+  error:
+    path: /error
+
+logging:
+  level:
+    root: ${LOGGING_LEVEL:TRACE}
+
+spring:
+  thymeleaf:
+    # Disable cache when developing which will not require restart when changes are made
+    cache: false
+  web:
+    resources:
+      add-mappings: false
+  mvc:
+    # Create custom 404 handler
+    throw-exception-if-no-handler-found: true
+  jpa:
+    generate-ddl: true
+    hibernate:
+      ddl-auto: create
+#    database: mysql
+#    show-sql: true
+#    properties:
+#      hibernate:
+#        dialect: org.hibernate.dialect.PostgreSQLDialect
+#        format_sql: true
+  datasource:
+    graduation-system:
+      url: ${GRAD_SYSTEM_URL:jdbc:postgresql://localhost:5432/graduation-system-db}
+      username: ${GRAD_SYSTEM_USERNAME:graduation-system-admin}
+      password: ${GRAD_SYSTEM_PASSWORD:graduation-system-admin}
+      driverClassName: org.postgresql.Driver
+      dialect: org.hibernate.dialect.PostgreSQLDialect
+
+# Spring security log
+org:
+  springframework:
+    boot:
+      autoconfigure:
+        security:
+          - category: INFO

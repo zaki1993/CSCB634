@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Diploma Assignments</title>
+
+    <style>
+        /* Additional inline styling for layout and clarity */
+         body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f7fa;
+            color: #333;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #ccc;
+        }
+        .header h1 {
+            font-size: 24px;
+            color: #333;
+        }
+        .create-button {
+            background-color: #28a745;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        .table-container {
+            margin-top: 20px;
+            overflow-x: auto;
+            background-color: #ffffff;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0 8px; /* Adds space between rows */
+            margin-bottom: 20px;
+        }
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+        }
+        th {
+            background-color: #f8f9fa;
+            color: #555;
+            font-weight: bold;
+        }
+        tbody tr {
+            background-color: #f5f5f5;
+            transition: background-color 0.3s;
+        }
+        tbody tr:nth-child(odd) {
+            background-color: #eaf2f8;
+        }
+        tbody tr:hover {
+            background-color: #d1e7dd;
+        }
+        .filter-input {
+            width: 100%;
+            padding: 5px;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        .edit-btn, .delete-btn {
+            padding: 5px 10px;
+            border-radius: 3px;
+            font-size: 14px;
+            cursor: pointer;
+            border: none;
+            transition: background-color 0.3s;
+        }
+        .edit-btn {
+            background-color: #007bff;
+            color: white;
+        }
+        .delete-btn {
+            background-color: #dc3545;
+            color: white;
+        }
+        .edit-btn:hover {
+            background-color: #0056b3;
+        }
+        .delete-btn:hover {
+            background-color: #c82333;
+        }
+    </style>
+</head>
+<div th:replace="~{header.html}"></div>
+<body class="d-flex flex-column min-vh-100">
+<div class="container">
+    <div class="header">
+        <h1>Diploma Assignments</h1>
+        <div th:if="${T(com.nbu.CSCB869.global.AccessControlConfig).isTeacher()}">
+            <a href="/diploma-assignments/create" class="create-button">Create Diploma Assignment</a>
+        </div>
+    </div>
+
+    <div class="table-container">
+        <table class="table">
+            <thead>
+            <tr>
+                <th>
+                    Assignment ID
+                    <input type="text" class="filter-input" placeholder="Filter by ID" data-column="0">
+                </th>
+
+                <th>
+                    Title
+                    <input type="text" class="filter-input" placeholder="Filter by Title" data-column="1">
+                </th>
+                <th>
+                    Student
+                    <select class="filter-select" data-column="2">
+                        <option value="">All</option>
+                        <option th:each="student : ${students}" th:value="${student.name}" th:text="${student.name}"></option>
+                    </select>
+                </th>
+                <th>
+                    Teacher
+                    <select class="filter-select" data-column="3">
+                        <option value="">All</option>
+                        <option th:each="teacher : ${teachers}" th:value="${teacher.name}" th:text="${teacher.name}"></option>
+                    </select>
+                </th>
+                <th>
+                    Approved
+                    <select class="filter-select" data-column="4">
+                        <option value="">All</option>
+                        <option value="Yes">Yes</option>
+                        <option value="No">No</option>
+                    </select>
+                </th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="assignment : ${assignments}">
+                <td th:text="${assignment.id}"></td>
+                <td th:text="${assignment.title}"></td>
+                <td th:text="${assignment.student.name + ' - ' + assignment.student.fn}"></td>
+                <td th:text="${assignment.teacher.name + ' - ' + assignment.teacher.type}"></td>
+
+                <!-- We will show only approved diploma assignments to students so no point of this field -->
+                <td th:text="${assignment.approved ? 'Yes' : 'No'}"></td>
+
+                <td class="action-buttons">
+
+                </td>
+
+                <td class="action-buttons" >
+                    <!-- visible by everyone -->
+                    <a th:href="@{/diploma-assignments/edit/{id}(id=${assignment.id})}" class="btn btn-primary" role="button">View Assignment</a>
+
+                    <!-- only teachers -->
+                    <button th:if="${T(com.nbu.CSCB869.global.AccessControlConfig).isTeacher() && !assignment.approved}"
+                            th:disabled="${assignment.approved}"
+                            th:classappend="${assignment.approved ? 'disabled' : ''}"
+                            type="button" class="btn btn-primary" th:onclick="'confirmApprove(' + ${assignment.id} + ')'">Approve Assignment</button>
+                    <!--
+                    th:disabled="${!assignment.approved}"
+                    th:classappend="${!assignment.approved ? 'disabled' : ''}"
+                     -->
+                    <a th:if="${T(com.nbu.CSCB869.global.AccessControlConfig).isTeacher()
+                       and (#bools.isTrue(assignment?.approved))
+                       and (#bools.isTrue(assignment?.hasDiplomaThesis))
+                       and assignment?.thesis?.uploadTime != null}"
+                       th:href="@{${assignment.thesis.review != null ? '/diploma-review/edit/' + assignment.thesis.review.id : '/diploma-review/' + assignment.thesis.id + '/create'}}"
+                       class="btn btn-primary" role="button"
+                       th:text="${assignment.thesis.review != null ? 'Update Review' : 'Review Thesis'}"/>
+
+                    <!-- only students -->
+                    <a th:if="${userOnly != null && userOnly && T(com.nbu.CSCB869.global.AccessControlConfig).isStudent()}"
+                       th:disabled="${!assignment.approved}"
+                       th:classappend="${!assignment.approved ? 'disabled' : ''}"
+                       th:href="@{${assignment.hasDiplomaThesis ? '/diploma-thesis/edit/' + assignment.thesis.id : '/diploma-thesis/' + assignment.id + '/create'}}"
+                       class="btn btn-primary" role="button"
+                       th:text="${assignment.hasDiplomaThesis ? (assignment.thesis.isReadOnly ? 'View Thesis' : 'Update Thesis') : 'Upload Thesis'}">
+                    </a>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Apprrove Confirmation Modal -->
+<div class="modal fade" id="confirmApproveModal" tabindex="-1" aria-labelledby="confirmDeleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="confirmApproveModalLabel">Confirm Delete</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                Are you sure you want to approve this diploma assignment?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <!-- Form to submit POST request -->
+                <form id="approveForm" method="post">
+                    <input type="hidden" name="_method" value="POST">
+                    <button type="submit" class="btn btn-danger">Approve</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div th:replace="~{footer.html}"></div>
+<!-- JavaScript to Control the Modal and Form Submission -->
+<script>
+    function confirmApprove(assignmentId) {
+        // Show the modal
+        const approveModal = new bootstrap.Modal(document.getElementById('confirmApproveModal'));
+        approveModal.show();
+
+        // Set the form action dynamically
+        const approveForm = document.getElementById('approveForm');
+        approveForm.action = `/diploma-assignments/approve/${assignmentId}`;
+    }
+
+    $(document).ready(function() {
+        $('.filter-input').on('input', function() {
+            const column = $(this).data('column');
+            const value = $(this).val().toLowerCase();
+            $('table tbody tr').filter(function() {
+                $(this).toggle($(this).find('td').eq(column).text().toLowerCase().indexOf(value) > -1)
+            });
+        });
+    });
+
+    document.querySelectorAll('.filter-select').forEach(select => {
+    select.addEventListener('change', function () {
+        const column = this.getAttribute('data-column');
+        const value = this.value.toLowerCase();
+        const table = document.querySelector('table'); // Adjust selector for your table
+
+        Array.from(table.tBodies[0].rows).forEach(row => {
+            const cellValue = row.cells[column].textContent.toLowerCase();
+            row.style.display = value === "" || cellValue.includes(value) ? "" : "none";
+        });
+    });
+});
+</script>
+</body>
+</html>

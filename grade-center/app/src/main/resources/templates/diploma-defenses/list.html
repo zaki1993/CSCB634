@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Diploma Defenses</title>
+    <style>
+        /* Additional inline styling for layout and clarity */
+         body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f7fa;
+            color: #333;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #ccc;
+        }
+        .header h1 {
+            font-size: 24px;
+            color: #333;
+        }
+        .create-button {
+            background-color: #28a745;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        .table-container {
+            margin-top: 20px;
+            overflow-x: auto;
+            background-color: #ffffff;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0 8px; /* Adds space between rows */
+            margin-bottom: 20px;
+        }
+        th, td {
+            padding: 12px 15px;
+            text-align: left;
+        }
+        th {
+            background-color: #f8f9fa;
+            color: #555;
+            font-weight: bold;
+        }
+        tbody tr {
+            background-color: #f5f5f5;
+            transition: background-color 0.3s;
+        }
+        tbody tr:nth-child(odd) {
+            background-color: #eaf2f8;
+        }
+        tbody tr:hover {
+            background-color: #d1e7dd;
+        }
+        .filter-input {
+            width: 100%;
+            padding: 5px;
+            margin-top: 5px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        .edit-btn, .delete-btn {
+            padding: 5px 10px;
+            border-radius: 3px;
+            font-size: 14px;
+            cursor: pointer;
+            border: none;
+            transition: background-color 0.3s;
+        }
+        .edit-btn {
+            background-color: #007bff;
+            color: white;
+        }
+        .delete-btn {
+            background-color: #dc3545;
+            color: white;
+        }
+        .edit-btn:hover {
+            background-color: #0056b3;
+        }
+        .delete-btn:hover {
+            background-color: #c82333;
+        }
+.tooltip {
+        position: relative;
+        display: inline-block;
+    }
+
+    .tooltip .tooltiptext {
+        visibility: hidden;
+        width: 200px;
+        background-color: #f5f5f5;
+        color: #333;
+        text-align: left;
+        border-radius: 5px;
+        padding: 5px;
+        position: absolute;
+        z-index: 1;
+        bottom: 125%; /* Position tooltip above */
+        left: 50%;
+        transform: translateX(-50%);
+        box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .tooltip:hover .tooltiptext {
+        visibility: visible;
+    }
+
+    </style>
+</head>
+
+<div th:replace="~{header.html}"></div>
+
+<body class="d-flex flex-column min-vh-100">
+<div class="container">
+    <div class="header">
+        <h1>Diploma Defenses</h1>
+        <div th:if="${T(com.nbu.CSCB869.global.AccessControlConfig).isTeacher()}">
+            <a href="/diploma-defenses/schedule" class="create-button">Schedule Diploma Defense</a>
+        </div>
+    </div>
+
+    <div class="table-container">
+        <table class="table">
+            <thead>
+            <tr>
+                <th>Date</th>
+                <th>Location</th>
+                <th>Students</th>
+                <th>Teachers</th>
+                <th th:if="${T(com.nbu.CSCB869.global.AccessControlConfig).isTeacher()}">Actions</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="defense : ${defenses}">
+                <td th:text="${defense.defenseDate}"></td>
+                <td th:text="${defense.location}"></td>
+                <td>
+                    <!-- Button to toggle the student list -->
+                    <button class="btn btn-outline-primary btn-sm"
+                            th:data-bs-toggle="collapse"
+                            th:data-bs-target="'#students-' + ${defense.id}"
+                            aria-expanded="false"
+                            th:attr="aria-controls='students-' + ${defense.id}">
+                        Show Students
+                    </button>
+
+                    <!-- Collapsible section for student names -->
+                    <div th:id="'students-' + ${defense.id}" class="collapse mt-2">
+                        <ul class="list-group list-group-flush">
+                            <li th:each="studentName : ${defense.studentNames}" class="list-group-item" th:text="${studentName}"></li>
+                        </ul>
+                    </div>
+                </td>
+                <td>
+                    <!-- Button to toggle the teacher list -->
+                    <button class="btn btn-outline-secondary btn-sm"
+                            th:data-bs-toggle="collapse"
+                            th:data-bs-target="'#teachers-' + ${defense.id}"
+                            aria-expanded="false"
+                            th:attr="aria-controls='teachers-' + ${defense.id}">
+                        Show Teachers
+                    </button>
+
+                    <!-- Collapsible section for teacher names -->
+                    <div th:id="'teachers-' + ${defense.id}" class="collapse mt-2">
+                        <ul class="list-group list-group-flush">
+                            <li th:each="teacherName : ${defense.teacherNames}" class="list-group-item" th:text="${teacherName}"></li>
+                        </ul>
+                    </div>
+                </td>
+
+                <td>
+                    <a th:if="${T(com.nbu.CSCB869.global.AccessControlConfig).isTeacher()}"
+                       th:href="@{'/diploma-defenses/edit/' + ${defense.id}}"
+                       class="btn btn-secondary"
+                       th:classappend="${defense.isReadOnly() ? 'disabled' : ''}">Edit</a>
+                    <button th:if="${T(com.nbu.CSCB869.global.AccessControlConfig).isTeacher()}"
+                            class="btn btn-danger btn-sm"
+                            th:attr="data-bs-target='#confirmDeleteModal' + ${defense.id}"
+                            th:disabled="${defense.isReadOnly()}">
+                        Delete
+                    </button>
+                    <a th:href="@{/diploma-defenses/grades/{defenseId}(defenseId=${defense.id})}" class="btn btn-secondary">View Grades</a>
+                </td>
+
+
+                <!-- Modal inside the loop -->
+                <div class="modal fade" th:id="'confirmDeleteModal' + ${defense.id}" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="deleteModalLabel">Confirm Delete</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                Are you sure you want to delete this diploma defense?
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                <a th:href="@{/diploma-defenses/delete/{id}(id=${defense.id})}" class="btn btn-danger">Confirm</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+<div th:replace="~{footer.html}"></div>
+
+</body>
+</html>

@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title th:text="${diplomaDefense.id != null ? 'Edit Diploma Defense' : 'Schedule Diploma Defense'}"></title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .card-header {
+            font-size: 1.5rem;
+            text-align: center;
+        }
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        .form-control[disabled], .btn[disabled] {
+            background-color: #e9ecef;
+            color: #6c757d;
+        }
+        .btn-primary {
+            background-color: #007bff;
+            border: none;
+            font-weight: 600;
+        }
+        .btn-primary:hover {
+            background-color: #0056b3;
+        }
+        .btn-secondary {
+            background-color: #6c757d;
+            border: none;
+        }
+        .btn-secondary:hover {
+            background-color: #5a6268;
+        }
+        .form-control, .form-select {
+            min-height: 45px;
+        }
+        textarea.form-control {
+            resize: none;
+        }
+        .text-right {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+    </style>
+</head>
+
+<!-- Header -->
+<div th:replace="~{header.html}"></div>
+<body class="d-flex flex-column min-vh-100">
+
+<main class="container my-5">
+    <div class="card shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h1 th:text="${diplomaDefense.id != null ? 'Edit Diploma Defense' : 'Schedule Diploma Defense'}"></h1>
+        </div>
+        <div class="card-body">
+            <form th:action="@{${diplomaDefense.id != null ? '/diploma-defenses/edit/' + diplomaDefense.id : '/diploma-defenses/schedule-defense'}}"
+                  th:object="${diplomaDefense}" method="post">
+                <div class="form-group">
+                    <label for="defenseDate">Defense Date</label>
+                    <input type="datetime-local" id="defenseDate" th:field="*{defenseDate}" class="form-control"
+                           th:disabled="${diplomaDefense.isReadOnly()}" required />
+                </div>
+
+                <div class="form-group">
+                    <label for="location">Location</label>
+                    <input type="text" id="location" th:field="*{location}" class="form-control"
+                           th:disabled="${diplomaDefense.isReadOnly()}" required />
+                </div>
+
+                <div class="form-group">
+                    <label for="thesesIds">Select Teachers/Students</label>
+                    <select name="thesesIds" multiple id="thesesIds" class="form-control form-select"
+                            th:disabled="${diplomaDefense.isReadOnly()}" required>
+                        <option th:each="thesis : ${theses}"
+                                th:value="${thesis.id}"
+                                th:text="${thesis.title + ' - ' + thesis.assignment.student.name + ' - ' + thesis.assignment.teacher.name}"
+                                th:selected="${diplomaDefense.theses != null and #lists.contains(diplomaDefense.theses, thesis.id)}">
+                        </option>
+                    </select>
+                </div>
+
+                <div class="text-right mt-4">
+                    <button type="submit" class="btn btn-primary" th:disabled="${diplomaDefense.isReadOnly()}">Save</button>
+                    <a href="/diploma-defenses" role="button" class="btn btn-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</main>
+
+<!-- Footer -->
+<div th:replace="~{footer.html}"></div>
+
+</body>
+</html>
