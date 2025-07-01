@@ -1,103 +1,117 @@
 package com.nbu.CSCB634.service;
 
+import com.nbu.CSCB634.model.School;
+import com.nbu.CSCB634.model.Teacher;
 import com.nbu.CSCB634.repository.TeacherRepository;
-import com.nbu.CSCB634.repository.diploma.defense.DiplomaDefenseRepository;
+import com.school.electronicdiary.model.School;
+import com.school.electronicdiary.model.Teacher;
+import com.school.electronicdiary.repository.TeacherRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.*;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
-@ExtendWith(MockitoExtension.class)
 class TeacherServiceTest {
-
-    @Mock
-    private TeacherRepository teacherRepository;
-
-    @Mock
-    private DiplomaDefenseRepository diplomaDefenseRepository;
 
     @InjectMocks
     private TeacherService teacherService;
 
-    @Test
-    void getAllTeachers() {
-        List<Teacher> mockTeachers = List.of(new Teacher(), new Teacher());
-        when(teacherRepository.findAll()).thenReturn(mockTeachers);
+    @Mock
+    private TeacherRepository teacherRepository;
 
-        List<Teacher> teachers = teacherService.getAllTeachers();
+    private Teacher teacher;
+    private School school;
 
-        assertEquals(2, teachers.size());
-        verify(teacherRepository, times(1)).findAll();
+    @BeforeEach
+    void setUp() {
+        MockitoAnnotations.openMocks(this);
+
+        school = School.builder()
+                .id(1L)
+                .name("Test School")
+                .address("Test Address")
+                .build();
+
+        teacher = Teacher.builder()
+                .id(1L)
+                .firstName("John")
+                .lastName("Doe")
+                .qualifiedSubjects(Set.of("Mathematics", "Physics"))
+                .school(school)
+                .build();
     }
 
     @Test
-    void getTeacherById_Found() {
-        Teacher mockTeacher = new Teacher();
-        mockTeacher.setId(1L);
-        when(teacherRepository.findById(1L)).thenReturn(Optional.of(mockTeacher));
+    void createTeacherSuccess() {
+        when(teacherRepository.save(any(Teacher.class))).thenReturn(teacher);
 
-        Teacher teacher = teacherService.getTeacherById(1L);
+        Teacher created = teacherService.createTeacher(teacher);
 
-        assertNotNull(teacher);
-        assertEquals(1L, teacher.getId());
-        verify(teacherRepository, times(1)).findById(1L);
+        assertEquals("John", created.getFirstName());
+        assertEquals("Doe", created.getLastName());
+        assertTrue(created.getQualifiedSubjects().contains("Mathematics"));
     }
 
     @Test
-    void getTeacherById_NotFound() {
-        when(teacherRepository.findById(1L)).thenReturn(Optional.empty());
+    void getTeacherByIdSuccess() {
+        when(teacherRepository.findById(1L)).thenReturn(Optional.of(teacher));
 
-        Teacher teacher = teacherService.getTeacherById(1L);
+        Optional<Teacher> optTeacher = teacherService.getTeacherById(1L);
 
-        assertNull(teacher);
-        verify(teacherRepository, times(1)).findById(1L);
+        assertTrue(optTeacher.isPresent());
+        assertEquals("John", optTeacher.get().getFirstName());
     }
 
     @Test
-    void saveTeacher() {
-        Teacher mockTeacher = new Teacher();
-        when(teacherRepository.save(mockTeacher)).thenReturn(mockTeacher);
+    void updateTeacherSuccess() {
+        Teacher newDetails = Teacher.builder()
+                .firstName("Jane")
+                .lastName("Smith")
+                .qualifiedSubjects(Set.of("Biology"))
+                .school(school)
+                .build();
 
-        Teacher savedTeacher = teacherService.saveTeacher(mockTeacher);
+        when(teacherRepository.findById(1L)).thenReturn(Optional.of(teacher));
+        when(teacherRepository.save(any(Teacher.class))).thenReturn(newDetails);
 
-        assertNotNull(savedTeacher);
-        verify(teacherRepository, times(1)).save(mockTeacher);
+        Teacher updated = teacherService.updateTeacher(1L, newDetails);
+
+        assertEquals("Jane", updated.getFirstName());
+        assertTrue(updated.getQualifiedSubjects().contains("Biology"));
     }
 
     @Test
-    void deleteTeacher() {
-        teacherService.deleteTeacher(1L);
+    void updateTeacherFailsWhenNotFound() {
+        when(teacherRepository.findById(2L)).thenReturn(Optional.empty());
 
-        verify(teacherRepository, times(1)).deleteById(1L);
+        IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class,
+                () -> teacherService.updateTeacher(2L, teacher));
+
+        assertEquals("Teacher not found", thrown.getMessage());
     }
 
     @Test
-    void getTeacherByUsername() {
-        Teacher mockTeacher = new Teacher();
-        mockTeacher.setUsername("john_doe");
-        when(teacherRepository.findByUsername("john_doe")).thenReturn(mockTeacher);
+    void deleteTeacherSuccess() {
+        when(teacherRepository.findById(1L)).thenReturn(Optional.of(teacher));
+        doNothing().when(teacherRepository).delete(teacher);
 
-        Teacher teacher = teacherService.getTeacherByUsername("john_doe");
-
-        assertNotNull(teacher);
-        assertEquals("john_doe", teacher.getUsername());
-        verify(teacherRepository, times(1)).findByUsername("john_doe");
+        assertDoesNotThrow(() -> teacherService.deleteTeacher(1L));
+        verify(teacherRepository, times(1)).delete(teacher);
     }
 
     @Test
-    void getSuccessfulDefensesByTeacher() {
-        when(diplomaDefenseRepository.countSuccessfulDefensesByTeacher(1L)).thenReturn(5L);
+    void deleteTeacherFailsWhenNotFound() {
+        when(teacherRepository.findById(2L)).thenReturn(Optional.empty());
 
-        long successfulDefenses = teacherService.getSuccessfulDefensesByTeacher(1L);
+        IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class,
+                () -> teacherService.deleteTeacher(2L));
 
-        assertEquals(5L, successfulDefenses);
-        verify(diplomaDefenseRepository, times(1)).countSuccessfulDefensesByTeacher(1L);
+        assertEquals("Teacher not found", thrown.getMessage());
     }
 }

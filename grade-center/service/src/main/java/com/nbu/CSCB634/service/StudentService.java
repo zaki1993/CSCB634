@@ -1,84 +1,53 @@
 package com.nbu.CSCB634.service;
 
+import com.nbu.CSCB634.model.Student;
 import com.nbu.CSCB634.repository.StudentRepository;
-import com.nbu.CSCB634.service.exceptions.StudentNotFoundException;
-import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
-/*@Component
+@Service
 @RequiredArgsConstructor
 public class StudentService {
+
     private final StudentRepository studentRepository;
 
-    public Student createStudent(Student s) {
-        if (studentRepository.findByFn(s.getFn()).isPresent()) {
-            throw new StudentAlreadyExistsException(s.getFn());
-        }
-        return studentRepository.save(s);
+    @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'DIRECTOR')")
+    public Student createStudent(@Valid Student student) {
+        return studentRepository.save(student);
     }
 
-    public Student editStudent(Student s) {
-        Student toEdit = getStudent(s.getFn());
-        // ID and fn cannot be updated
-        toEdit.setName(s.getName());
-        return studentRepository.save(toEdit);
+    @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'DIRECTOR', 'TEACHER', 'PARENT', 'STUDENT')")
+    public Optional<Student> getStudentById(Long id) {
+        return studentRepository.findById(id);
     }
 
-    public void deleteStudent(String fn) {
-        Student toDelete = getStudent(fn);
-        studentRepository.delete(toDelete);
-    }
-
+    @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'DIRECTOR', 'TEACHER')")
     public List<Student> getAllStudents() {
         return studentRepository.findAll();
     }
 
-    public Student getStudent(String fn) {
-        return studentRepository.findByFn(fn).orElseThrow(() -> new StudentNotFoundException(fn));
-    }
-}*/
-
-/**
- * Service for managing Student entities.
- * Provides methods to retrieve and modify student data in the system.
- */
-@Service
-public class StudentService {
-
-    private final StudentRepository studentRepository;
-
-    @Autowired
-    public StudentService(StudentRepository studentRepository) {
-        this.studentRepository = studentRepository;
+    @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'DIRECTOR')")
+    public Student updateStudent(Long id, @Valid Student updatedStudent) {
+        return studentRepository.findById(id)
+                .map(student -> {
+                    student.setFirstName(updatedStudent.getFirstName());
+                    student.setLastName(updatedStudent.getLastName());
+                    student.setSchool(updatedStudent.getSchool());
+                    student.setSchoolClass(updatedStudent.getSchoolClass());
+                    return studentRepository.save(student);
+                })
+                .orElseThrow(() -> new IllegalArgumentException("Student not found"));
     }
 
-    /**
-     * Retrieves all students in the system.
-     *
-     * @return List of all students
-     */
-    public List<Student> getAllStudents() {
-        return studentRepository.findAll();
-    }
-
-    /**
-     * Finds a student by their ID.
-     *
-     * @param id ID of the student
-     * @return The student, if found
-     */
-    public Student getStudentById(Long id) {
-        return studentRepository.findById(id).orElse(null);
-    }
-
-    public Student getStudentByFn(String fn) {
-        return studentRepository.findByFn(fn).orElseThrow(() -> new StudentNotFoundException(fn));
-    }
-
-    public List<Student> getGraduatedStudentsInPeriod(LocalDateTime startDate, LocalDateTime endDate) {
-        return studentRepository.findGraduatedStudentsInPeriod(startDate, endDate);
+    @PreAuthorize("hasRole('ADMINISTRATOR')")
+    public void deleteStudent(Long id) {
+        Student student = studentRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Student not found"));
+        studentRepository.delete(student);
     }
 }

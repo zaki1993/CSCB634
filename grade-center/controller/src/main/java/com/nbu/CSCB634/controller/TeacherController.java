@@ -1,30 +1,62 @@
 package com.nbu.CSCB634.controller;
 
+import com.nbu.CSCB634.model.Teacher;
 import com.nbu.CSCB634.service.TeacherService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@Controller
+@RestController
+@RequestMapping("/api/teachers")
 @RequiredArgsConstructor
-@RequestMapping("/teachers")
 public class TeacherController {
+
     private final TeacherService teacherService;
 
-    /**
-     * Displays a list of all teachers in the system.
-     *
-     * @param model The model object to which the data will be added.
-     * @return The name of the Thymeleaf template to render.
-     */
     @GetMapping
-    public String getAllTeachers(Model model) {
-        List<Teacher> teachers = teacherService.getAllTeachers();
-        model.addAttribute("teachers", teachers);
-        return "teachers/list";
+    @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'DIRECTOR')")
+    public List<Teacher> getAllTeachers() {
+        return teacherService.getAllTeachers();
+    }
+
+    @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'DIRECTOR', 'TEACHER')")
+    public ResponseEntity<Teacher> getTeacherById(@PathVariable Long id) {
+        return teacherService.getTeacherById(id)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @PostMapping
+    @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'DIRECTOR')")
+    public ResponseEntity<Teacher> createTeacher(@Valid @RequestBody Teacher teacher) {
+        return ResponseEntity.ok(teacherService.createTeacher(teacher));
+    }
+
+    @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'DIRECTOR')")
+    public ResponseEntity<Teacher> updateTeacher(@PathVariable Long id,
+                                                 @Valid @RequestBody Teacher teacher) {
+        try {
+            Teacher updatedTeacher = teacherService.updateTeacher(id, teacher);
+            return ResponseEntity.ok(updatedTeacher);
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ADMINISTRATOR')")
+    public ResponseEntity<Void> deleteTeacher(@PathVariable Long id) {
+        try {
+            teacherService.deleteTeacher(id);
+            return ResponseEntity.noContent().build();
+        } catch (IllegalArgumentException ex) {
+            return ResponseEntity.notFound().build();
+        }
     }
 }

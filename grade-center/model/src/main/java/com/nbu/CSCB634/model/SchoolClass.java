@@ -1,10 +1,5 @@
 package com.nbu.CSCB634.model;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
@@ -15,13 +10,20 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Subject {
+public class SchoolClass {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    /**
+     * Example: "1A", "12B" etc
+     */
     @NotBlank
     private String name;
 
-    // School could be added if subjects are school-specific
+    private Integer gradeNumber; // 1..12
+
+    @ManyToOne
+    @JoinColumn(name = "school_id")
+    private School school;
 }
