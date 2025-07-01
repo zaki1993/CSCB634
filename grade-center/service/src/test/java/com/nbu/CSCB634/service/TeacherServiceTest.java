@@ -1,117 +1,124 @@
 package com.nbu.CSCB634.service;
 
-import com.nbu.CSCB634.model.School;
 import com.nbu.CSCB634.model.Teacher;
 import com.nbu.CSCB634.repository.TeacherRepository;
-import com.school.electronicdiary.model.School;
-import com.school.electronicdiary.model.Teacher;
-import com.school.electronicdiary.repository.TeacherRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.*;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 class TeacherServiceTest {
 
-    @InjectMocks
-    private TeacherService teacherService;
-
     @Mock
     private TeacherRepository teacherRepository;
 
-    private Teacher teacher;
-    private School school;
+    @InjectMocks
+    private TeacherService teacherService;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-
-        school = School.builder()
-                .id(1L)
-                .name("Test School")
-                .address("Test Address")
-                .build();
-
-        teacher = Teacher.builder()
-                .id(1L)
-                .firstName("John")
-                .lastName("Doe")
-                .qualifiedSubjects(Set.of("Mathematics", "Physics"))
-                .school(school)
-                .build();
     }
 
     @Test
-    void createTeacherSuccess() {
+    void testCreateTeacher_Success() {
+        Teacher teacher = new Teacher();
+        teacher.setId(1L);
+        teacher.setFirstName("Bob");
+
         when(teacherRepository.save(any(Teacher.class))).thenReturn(teacher);
 
         Teacher created = teacherService.createTeacher(teacher);
-
-        assertEquals("John", created.getFirstName());
-        assertEquals("Doe", created.getLastName());
-        assertTrue(created.getQualifiedSubjects().contains("Mathematics"));
+        assertThat(created).isNotNull();
+        assertThat(created.getFirstName()).isEqualTo("Bob");
     }
 
     @Test
-    void getTeacherByIdSuccess() {
+    void testGetTeacherById_Found() {
+        Teacher teacher = new Teacher();
+        teacher.setId(1L);
+
         when(teacherRepository.findById(1L)).thenReturn(Optional.of(teacher));
 
-        Optional<Teacher> optTeacher = teacherService.getTeacherById(1L);
-
-        assertTrue(optTeacher.isPresent());
-        assertEquals("John", optTeacher.get().getFirstName());
+        Optional<Teacher> result = teacherService.getTeacherById(1L);
+        assertThat(result).isPresent();
+        assertThat(result.get().getId()).isEqualTo(1L);
     }
 
     @Test
-    void updateTeacherSuccess() {
-        Teacher newDetails = Teacher.builder()
-                .firstName("Jane")
-                .lastName("Smith")
-                .qualifiedSubjects(Set.of("Biology"))
-                .school(school)
-                .build();
+    void testGetTeacherById_NotFound() {
+        when(teacherRepository.findById(99L)).thenReturn(Optional.empty());
 
-        when(teacherRepository.findById(1L)).thenReturn(Optional.of(teacher));
-        when(teacherRepository.save(any(Teacher.class))).thenReturn(newDetails);
-
-        Teacher updated = teacherService.updateTeacher(1L, newDetails);
-
-        assertEquals("Jane", updated.getFirstName());
-        assertTrue(updated.getQualifiedSubjects().contains("Biology"));
+        Optional<Teacher> result = teacherService.getTeacherById(99L);
+        assertThat(result).isEmpty();
     }
 
     @Test
-    void updateTeacherFailsWhenNotFound() {
-        when(teacherRepository.findById(2L)).thenReturn(Optional.empty());
+    void testGetAllTeachers() {
+        Teacher t1 = new Teacher();
+        Teacher t2 = new Teacher();
+        when(teacherRepository.findAll()).thenReturn(List.of(t1, t2));
 
-        IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class,
-                () -> teacherService.updateTeacher(2L, teacher));
-
-        assertEquals("Teacher not found", thrown.getMessage());
+        List<Teacher> teachers = teacherService.getAllTeachers();
+        assertThat(teachers).hasSize(2);
     }
 
     @Test
-    void deleteTeacherSuccess() {
-        when(teacherRepository.findById(1L)).thenReturn(Optional.of(teacher));
-        doNothing().when(teacherRepository).delete(teacher);
+    void testUpdateTeacher_Success() {
+        Teacher existing = new Teacher();
+        existing.setId(1L);
+        existing.setFirstName("Old");
+        existing.setLastName("Name");
 
-        assertDoesNotThrow(() -> teacherService.deleteTeacher(1L));
-        verify(teacherRepository, times(1)).delete(teacher);
+        Teacher update = new Teacher();
+        update.setFirstName("New");
+        update.setLastName("NameNew");
+
+        when(teacherRepository.findById(1L)).thenReturn(Optional.of(existing));
+        when(teacherRepository.save(any(Teacher.class))).thenReturn(existing);
+
+        Teacher updated = teacherService.updateTeacher(1L, update);
+        assertThat(updated.getFirstName()).isEqualTo("New");
+        assertThat(updated.getLastName()).isEqualTo("NameNew");
     }
 
     @Test
-    void deleteTeacherFailsWhenNotFound() {
-        when(teacherRepository.findById(2L)).thenReturn(Optional.empty());
+    void testUpdateTeacher_NotFound() {
+        Teacher update = new Teacher();
+        when(teacherRepository.findById(99L)).thenReturn(Optional.empty());
 
-        IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class,
-                () -> teacherService.deleteTeacher(2L));
+        assertThatThrownBy(() -> teacherService.updateTeacher(99L, update))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Teacher not found");
+    }
 
-        assertEquals("Teacher not found", thrown.getMessage());
+    @Test
+    void testDeleteTeacher_Success() {
+        Teacher existing = new Teacher();
+        existing.setId(1L);
+
+        when(teacherRepository.findById(1L)).thenReturn(Optional.of(existing));
+        doNothing().when(teacherRepository).delete(existing);
+
+        teacherService.deleteTeacher(1L);
+        verify(teacherRepository).delete(existing);
+    }
+
+    @Test
+    void testDeleteTeacher_NotFound() {
+        when(teacherRepository.findById(99L)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> teacherService.deleteTeacher(99L))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Teacher not found");
     }
 }

@@ -1,101 +1,120 @@
 package com.nbu.CSCB634.service;
 
 import com.nbu.CSCB634.model.School;
-import com.school.electronicdiary.model.School;
-import com.school.electronicdiary.repository.SchoolRepository;
+import com.nbu.CSCB634.repository.SchoolRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.*;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
 
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 class SchoolServiceTest {
 
-    @InjectMocks
-    private SchoolService schoolService;
-
     @Mock
     private SchoolRepository schoolRepository;
 
-    private School school;
+    @InjectMocks
+    private SchoolService schoolService;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-
-        school = School.builder()
-                .id(1L)
-                .name("Test School")
-                .address("123 Street")
-                .build();
     }
 
     @Test
-    void createSchoolSuccess() {
+    void testCreateSchool_Success() {
+        School school = new School();
+        school.setId(1L);
+        school.setName("Test School");
+
         when(schoolRepository.save(any(School.class))).thenReturn(school);
 
         School created = schoolService.createSchool(school);
-
-        assertEquals("Test School", created.getName());
-        assertEquals("123 Street", created.getAddress());
+        assertThat(created).isNotNull();
+        assertThat(created.getName()).isEqualTo("Test School");
     }
 
     @Test
-    void getSchoolByIdSuccess() {
+    void testGetSchoolById_Found() {
+        School school = new School();
+        school.setId(1L);
+
         when(schoolRepository.findById(1L)).thenReturn(Optional.of(school));
 
-        Optional<School> found = schoolService.getSchoolById(1L);
-
-        assertTrue(found.isPresent());
-        assertEquals("Test School", found.get().getName());
+        Optional<School> result = schoolService.getSchoolById(1L);
+        assertThat(result).isPresent();
     }
 
     @Test
-    void updateSchoolSuccess() {
-        School newDetails = School.builder()
-                .name("New School Name")
-                .address("New Address")
-                .build();
+    void testGetSchoolById_NotFound() {
+        when(schoolRepository.findById(99L)).thenReturn(Optional.empty());
 
-        when(schoolRepository.findById(1L)).thenReturn(Optional.of(school));
-        when(schoolRepository.save(any(School.class))).thenReturn(newDetails);
-
-        School updated = schoolService.updateSchool(1L, newDetails);
-
-        assertEquals("New School Name", updated.getName());
-        assertEquals("New Address", updated.getAddress());
+        Optional<School> result = schoolService.getSchoolById(99L);
+        assertThat(result).isEmpty();
     }
 
     @Test
-    void updateSchoolFailsWhenNotFound() {
-        when(schoolRepository.findById(2L)).thenReturn(Optional.empty());
+    void testUpdateSchool_Success() {
+        School existing = new School();
+        existing.setId(1L);
+        existing.setName("Old");
 
-        IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class,
-                () -> schoolService.updateSchool(2L, school));
+        School update = new School();
+        update.setName("New");
 
-        assertEquals("School not found", thrown.getMessage());
+        when(schoolRepository.findById(1L)).thenReturn(Optional.of(existing));
+        when(schoolRepository.save(any(School.class))).thenReturn(existing);
+
+        School updated = schoolService.updateSchool(1L, update);
+        assertThat(updated.getName()).isEqualTo("New");
     }
 
     @Test
-    void deleteSchoolSuccess() {
-        when(schoolRepository.findById(1L)).thenReturn(Optional.of(school));
-        doNothing().when(schoolRepository).delete(school);
+    void testUpdateSchool_NotFound() {
+        School update = new School();
+        when(schoolRepository.findById(99L)).thenReturn(Optional.empty());
 
-        assertDoesNotThrow(() -> schoolService.deleteSchool(1L));
-        verify(schoolRepository, times(1)).delete(school);
+        assertThatThrownBy(() -> schoolService.updateSchool(99L, update))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("School not found");
     }
 
     @Test
-    void deleteSchoolFailsWhenNotFound() {
-        when(schoolRepository.findById(2L)).thenReturn(Optional.empty());
+    void testDeleteSchool_Success() {
+        School existing = new School();
+        existing.setId(1L);
 
-        IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class,
-                () -> schoolService.deleteSchool(2L));
+        when(schoolRepository.findById(1L)).thenReturn(Optional.of(existing));
+        doNothing().when(schoolRepository).delete(existing);
 
-        assertEquals("School not found", thrown.getMessage());
+        schoolService.deleteSchool(1L);
+        verify(schoolRepository).delete(existing);
+    }
+
+    @Test
+    void testDeleteSchool_NotFound() {
+        when(schoolRepository.findById(99L)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> schoolService.deleteSchool(99L))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("School not found");
+    }
+
+    @Test
+    void testGetAllSchools() {
+        School s1 = new School();
+        School s2 = new School();
+
+        when(schoolRepository.findAll()).thenReturn(List.of(s1, s2));
+        var schools = schoolService.getAllSchools();
+        assertThat(schools).hasSize(2);
     }
 }

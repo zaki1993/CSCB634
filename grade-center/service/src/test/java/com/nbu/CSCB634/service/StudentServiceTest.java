@@ -1,7 +1,5 @@
 package com.nbu.CSCB634.service;
 
-import com.nbu.CSCB634.model.School;
-import com.nbu.CSCB634.model.SchoolClass;
 import com.nbu.CSCB634.model.Student;
 import com.nbu.CSCB634.repository.StudentRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -10,113 +8,117 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 class StudentServiceTest {
 
-    @InjectMocks
-    private StudentService studentService;
-
     @Mock
     private StudentRepository studentRepository;
 
-    private Student student;
-    private School school;
-    private SchoolClass schoolClass;
+    @InjectMocks
+    private StudentService studentService;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-
-        school = School.builder()
-                .id(1L)
-                .name("Demo School")
-                .address("Some Address")
-                .build();
-
-        schoolClass = SchoolClass.builder()
-                .id(1L)
-                .name("1A")
-                .gradeNumber(1)
-                .school(school)
-                .build();
-
-        student = Student.builder()
-                .id(1L)
-                .firstName("Alice")
-                .lastName("Wonderland")
-                .school(school)
-                .schoolClass(schoolClass)
-                .build();
     }
 
     @Test
-    void createStudentSuccess() {
+    void testCreateStudent_Success() {
+        Student student = new Student();
+        student.setId(1L);
+        student.setFirstName("Alice");
+
         when(studentRepository.save(any(Student.class))).thenReturn(student);
 
         Student created = studentService.createStudent(student);
-
-        assertEquals("Alice", created.getFirstName());
-        assertEquals("Wonderland", created.getLastName());
+        assertThat(created).isNotNull();
+        assertThat(created.getFirstName()).isEqualTo("Alice");
     }
 
     @Test
-    void getStudentByIdSuccess() {
+    void testGetStudentById_Found() {
+        Student student = new Student();
+        student.setId(1L);
+
         when(studentRepository.findById(1L)).thenReturn(Optional.of(student));
 
-        Optional<Student> found = studentService.getStudentById(1L);
-
-        assertTrue(found.isPresent());
-        assertEquals("Alice", found.get().getFirstName());
+        Optional<Student> result = studentService.getStudentById(1L);
+        assertThat(result).isPresent();
+        assertThat(result.get().getId()).isEqualTo(1L);
     }
 
     @Test
-    void updateStudentSuccess() {
-        Student newDetails = Student.builder()
-                .firstName("Bob")
-                .lastName("Builder")
-                .school(school)
-                .schoolClass(schoolClass)
-                .build();
+    void testGetStudentById_NotFound() {
+        when(studentRepository.findById(99L)).thenReturn(Optional.empty());
 
-        when(studentRepository.findById(1L)).thenReturn(Optional.of(student));
-        when(studentRepository.save(any(Student.class))).thenReturn(newDetails);
-
-        Student updated = studentService.updateStudent(1L, newDetails);
-
-        assertEquals("Bob", updated.getFirstName());
-        assertEquals("Builder", updated.getLastName());
+        Optional<Student> result = studentService.getStudentById(99L);
+        assertThat(result).isEmpty();
     }
 
     @Test
-    void updateStudentFailsWhenNotFound() {
-        when(studentRepository.findById(2L)).thenReturn(Optional.empty());
+    void testGetAllStudents() {
+        Student s1 = new Student();
+        Student s2 = new Student();
+        when(studentRepository.findAll()).thenReturn(List.of(s1, s2));
 
-        IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class,
-                () -> studentService.updateStudent(2L, student));
-
-        assertEquals("Student not found", thrown.getMessage());
+        List<Student> students = studentService.getAllStudents();
+        assertThat(students).hasSize(2);
     }
 
     @Test
-    void deleteStudentSuccess() {
-        when(studentRepository.findById(1L)).thenReturn(Optional.of(student));
-        doNothing().when(studentRepository).delete(student);
+    void testUpdateStudent_Success() {
+        Student existing = new Student();
+        existing.setId(1L);
+        existing.setFirstName("Old");
+        existing.setLastName("Name");
 
-        assertDoesNotThrow(() -> studentService.deleteStudent(1L));
-        verify(studentRepository, times(1)).delete(student);
+        Student update = new Student();
+        update.setFirstName("New");
+        update.setLastName("NameNew");
+
+        when(studentRepository.findById(1L)).thenReturn(Optional.of(existing));
+        when(studentRepository.save(any(Student.class))).thenReturn(existing);
+
+        Student updated = studentService.updateStudent(1L, update);
+        assertThat(updated.getFirstName()).isEqualTo("New");
+        assertThat(updated.getLastName()).isEqualTo("NameNew");
     }
 
     @Test
-    void deleteStudentFailsWhenNotFound() {
-        when(studentRepository.findById(2L)).thenReturn(Optional.empty());
+    void testUpdateStudent_NotFound() {
+        Student update = new Student();
+        when(studentRepository.findById(99L)).thenReturn(Optional.empty());
 
-        IllegalArgumentException thrown = assertThrows(IllegalArgumentException.class,
-                () -> studentService.deleteStudent(2L));
+        assertThatThrownBy(() -> studentService.updateStudent(99L, update))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Student not found");
+    }
 
-        assertEquals("Student not found", thrown.getMessage());
+    @Test
+    void testDeleteStudent_Success() {
+        Student existing = new Student();
+        existing.setId(1L);
+
+        when(studentRepository.findById(1L)).thenReturn(Optional.of(existing));
+        doNothing().when(studentRepository).delete(existing);
+
+        studentService.deleteStudent(1L);
+        verify(studentRepository).delete(existing);
+    }
+
+    @Test
+    void testDeleteStudent_NotFound() {
+        when(studentRepository.findById(99L)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> studentService.deleteStudent(99L))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("Student not found");
     }
 }
