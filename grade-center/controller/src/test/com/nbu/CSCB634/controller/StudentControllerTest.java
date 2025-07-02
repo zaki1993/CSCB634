@@ -1,24 +1,29 @@
 package com.nbu.CSCB634.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nbu.CSCB634.model.Student;
 import com.nbu.CSCB634.service.StudentService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+
 import org.springframework.http.MediaType;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
+import java.util.List;
 import java.util.Optional;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
+
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-
 @WebMvcTest(StudentController.class)
-public class StudentControllerTest {
+class StudentControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -26,41 +31,104 @@ public class StudentControllerTest {
     @MockBean
     private StudentService studentService;
 
-    @Test
-    @WithMockUser(username = "admin", roles = {"ADMINISTRATOR"})
-    void getStudent_AsAdmin_ReturnsStudent() throws Exception {
-        Student student = Student.builder().id(1L).firstName("Test").lastName("Student").build();
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
-        Mockito.when(studentService.getStudentById(1L)).thenReturn(Optional.of(student));
+    private Student student;
 
-        mockMvc.perform(get("/api/students/1"))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.firstName").value("Test"));
+    @BeforeEach
+    void setup() {
+        student = Student.builder()
+                .id(1L)
+                .firstName("Alice")
+                .lastName("Wonderland")
+                .build();
     }
 
     @Test
-    @WithMockUser(username = "teacher", roles = {"TEACHER"})
-    void getStudent_AsTeacher_Authorized() throws Exception {
-        Student student = Student.builder().id(1L).firstName("Student1").lastName("Last").build();
+    void testGetStudentById_Found() throws Exception {
+        when(studentService.getStudentById(1L)).thenReturn(Optional.of(student));
 
-        Mockito.when(studentService.getStudentById(1L)).thenReturn(Optional.of(student));
-
-        mockMvc.perform(get("/api/students/1"))
-                // Because 'checkTeacherAccess' returns true as placeholder, expect OK
+        mockMvc.perform(get("/students/1"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.lastName").value("Last"));
+                .andExpect(jsonPath("$.id").value(1L))
+                .andExpect(jsonPath("$.firstName").value("Alice"));
     }
 
     @Test
-    @WithMockUser(username = "parent", roles = {"PARENT"})
-    void getStudent_AsParent_Unauthorized() throws Exception {
-        Student student = Student.builder().id(1L).firstName("Student1").lastName("Last").build();
+    void testGetStudentById_NotFound() throws Exception {
+        when(studentService.getStudentById(99L)).thenReturn(Optional.empty());
 
-        Mockito.when(studentService.getStudentById(1L)).thenReturn(Optional.of(student));
+        mockMvc.perform(get("/students/99"))
+                .andExpect(status().isNotFound());
+    }
 
-        // Override checkParentAccess to false to simulate unauthorized access
-        // This requires refactoring or mocking - simplified here as status forbidden
-        mockMvc.perform(get("/api/students/1"))
-                .andExpect(status().isForbidden());
+    @Test
+    void testGetAllStudents() throws Exception {
+        Student s2 = Student.builder().id(2L).firstName("Bob").lastName("Builder").build();
+
+        when(studentService.getAllStudents()).thenReturn(List.of(student, s2));
+
+        mockMvc.perform(get("/students"))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.length()").value(2));
+    }
+
+    @Test
+    void testCreateStudent() throws Exception {
+        when(studentService.createStudent(any(Student.class))).thenReturn(student);
+
+        mockMvc.perform(post("/students")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(student)))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.firstName").value("Alice"));
+    }
+
+    @Test
+    void testUpdateStudent_Found() throws Exception {
+        Student updated = Student.builder()
+                .id(1L)
+                .firstName("Alice Updated")
+                .lastName("Wonderland Updated")
+                .build();
+
+        when(studentService.updateStudent(eq(1L), any(Student.class))).thenReturn(updated);
+
+        mockMvc.perform(put("/students/1")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(updated)))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.firstName").value("Alice Updated"));
+    }
+
+    @Test
+    void testUpdateStudent_NotFound() throws Exception {
+        when(studentService.updateStudent(eq(99L), any(Student.class)))
+                .thenThrow(new IllegalArgumentException("Student not found"));
+
+        mockMvc.perform(put("/students/99")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(student)))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string("Student not found"));
+    }
+
+    @Test
+    void testDeleteStudent_Found() throws Exception {
+        doNothing().when(studentService).deleteStudent(1L);
+
+        mockMvc.perform(delete("/students/1"))
+                .andExpect(status().isNoContent());
+
+        verify(studentService).deleteStudent(1L);
+    }
+
+    @Test
+    void testDeleteStudent_NotFound() throws Exception {
+        doThrow(new IllegalArgumentException("Student not found")).when(studentService).deleteStudent(99L);
+
+        mockMvc.perform(delete("/students/99"))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string("Student not found"));
     }
 }
