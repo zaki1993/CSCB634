@@ -21,31 +21,32 @@ import javax.sql.DataSource;
 @Slf4j
 @Configuration
 @EnableTransactionManagement
-@EntityScan("com.nbu.CSCB869.model")
-@EnableJpaRepositories(basePackages = "com.nbu.CSCB869.repository",
+@EntityScan("com.nbu.CSCB634.model")
+@EnableJpaRepositories(basePackages = "com.nbu.CSCB634.repository",
         entityManagerFactoryRef = "jpaEntityManagerFactory",
         transactionManagerRef = "jpaTransactionManager")
-public class GraduationSystemDatasourceConfig {
+public class GradeCenterDatasourceConfig {
     @Bean
     @Primary
-    @ConfigurationProperties("spring.datasource.graduation-system")
+    @ConfigurationProperties("spring.datasource.grade-center")
     public DataSourceProperties jpaDataSourceProperties() {
         return new DataSourceProperties();
     }
 
     @Bean
-    @ConfigurationProperties("spring.datasource.graduation-system")
+    @ConfigurationProperties("spring.datasource.grade-center")
     public DataSource jpaDataSource() {
         return jpaDataSourceProperties().initializeDataSourceBuilder()
                 .type(HikariDataSource.class).build();
     }
+
     @Primary
     @Bean(name = "jpaEntityManagerFactory")
     public LocalContainerEntityManagerFactoryBean entityManagerFactory(
             EntityManagerFactoryBuilder builder) {
         return builder
                 .dataSource(jpaDataSource())
-                .packages("com.nbu.CSCB869.model")
+                .packages("com.nbu.CSCB634.model")
                 .build();
     }
 

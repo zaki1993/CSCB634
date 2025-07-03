@@ -29,9 +29,8 @@ public class UserService {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
 
         // Assign default role STUDENT for example or depending on registration type
-        if (user.getRoles() == null || user.getRoles().isEmpty()) {
-            user.setRoles(new HashSet<>());
-            user.getRoles().add(Role.STUDENT);
+        if (user.getRole() == null) {
+            user.setRole(Role.STUDENT);
         }
 
         return userRepository.save(user);

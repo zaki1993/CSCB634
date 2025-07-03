@@ -1,6 +1,6 @@
 package com.nbu.CSCB634.config;
 
-import com.nbu.CSCB634.config.auth.GraduationSystemAuthenticationProvider;
+import com.nbu.CSCB634.config.auth.GradeCenterAuthenticationProvider;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
@@ -30,7 +30,7 @@ public class WebSecurityConfig {
                     .invalidateHttpSession(true)
                     .deleteCookies("JSESSIONID")
                     .permitAll())
-                .authenticationProvider(new GraduationSystemAuthenticationProvider());
+                .authenticationProvider(new GradeCenterAuthenticationProvider());
 
         return http.build();
     }

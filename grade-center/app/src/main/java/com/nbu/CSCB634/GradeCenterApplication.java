@@ -5,10 +5,10 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.ComponentScan;
 
 @SpringBootApplication
-@ComponentScan(basePackages = {"com.nbu.CSCB869"})
-public class GraduationSystemApplication {
+@ComponentScan(basePackages = {"com.nbu.CSCB634"})
+public class GradeCenterApplication {
 	public static void main(String[] args) {
-		SpringApplication.run(GraduationSystemApplication.class, args);
+		SpringApplication.run(GradeCenterApplication.class, args);
 	}
 
 }

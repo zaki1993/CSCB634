@@ -16,7 +16,7 @@ import java.util.List;
 
 @Component
 @Slf4j
-public class GraduationSystemAuthenticationProvider implements AuthenticationProvider {
+public class GradeCenterAuthenticationProvider implements AuthenticationProvider {
     @Autowired
     private UserService userService;
 
@@ -26,11 +26,11 @@ public class GraduationSystemAuthenticationProvider implements AuthenticationPro
         String password = authentication.getCredentials().toString();
 
         try {
-            User user = userService.getUserByUserName(username);
+            User user = userService.findByUsername(username).get();
             if (user == null || !user.getPassword().equals(password)) {
                 throw new BadCredentialsException("Wrong username or password");
             }
-            List authorities = List.of(new SimpleGrantedAuthority(user.getUserType().toString()));
+            List authorities = List.of(new SimpleGrantedAuthority(user.getRole().toString()));
             return new UsernamePasswordAuthenticationToken(user.getUsername(), user.getPassword(), authorities);
         } catch (Exception e) {
             log.trace("Authentication failed", e);
