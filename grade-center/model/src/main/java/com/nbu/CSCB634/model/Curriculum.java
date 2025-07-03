@@ -5,9 +5,9 @@ import jakarta.persistence.Table;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Entity
+//@Entity
 @Data
-@Table(name="curriculum")
+//@Table(name="curriculum")
 @NoArgsConstructor
 public class Curriculum {
 }

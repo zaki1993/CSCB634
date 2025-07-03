@@ -1,5 +1,5 @@
 server:
-  port: 8080
+  port: 8089
   # Error path to handle errors
   error:
     path: /error
@@ -30,9 +30,9 @@ spring:
   #        format_sql: true
   datasource:
     grade-center:
-      url: ${GRADE_CENTER_URL:jdbc:postgresql://localhost:5432/grade-center-db}
-      username: ${GRADE_CENTER_USERNAME:grade-center-admin}
-      password: ${GRADE_CENTER_PASSWORD:grade-center-admin}
+      url: ${GRADE_CENTER_URL:jdbc:postgresql://localhost:5433/grade-center-db}
+      username: ${GRADE_CENTER_USERNAME:postgres}
+      password: ${GRADE_CENTER_PASSWORD:postgres}
       driverClassName: org.postgresql.Driver
       dialect: org.hibernate.dialect.PostgreSQLDialect
 
