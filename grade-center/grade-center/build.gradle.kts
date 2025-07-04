@@ -19,6 +19,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
     implementation("org.springframework.boot:spring-boot-starter-security")
+    implementation("org.springframework.security:spring-security-core")
     implementation("com.fasterxml.jackson.core:jackson-annotations:2.17.2")
 
     implementation("com.zaxxer:HikariCP:5.1.0")
@@ -54,7 +55,6 @@ dependencies {
     // Spring Test dependencies for mocking and other utilities
     testImplementation("org.springframework:spring-test")
 }
-
 tasks.getByName<Test>("test") {
     useJUnitPlatform()
 }
@@ -86,7 +86,7 @@ tasks {
         args.add("on-failure:3")
         args.add("-e")
         // Allow docker to access the local database on the same machine
-        args.add("GRAD_SYSTEM_URL=jdbc:postgresql://host.docker.internal:5432/grade-center-db")
+        args.add("GRADE_CENTER_URL=jdbc:postgresql://host.docker.internal:5432/grade-center-db")
         args.add("-p")
         args.add("8080:8080")
         args.add(graduationSystemImageName)

@@ -48,7 +48,7 @@ class DirectorControllerTest {
     void testGetDirectorById_Found() throws Exception {
         when(directorService.getDirectorById(1L)).thenReturn(Optional.of(director));
 
-        mockMvc.perform(get("/directors/1"))
+        mockMvc.perform(get("/api/directors/1"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.id").value(1L))
                 .andExpect(jsonPath("$.firstName").value("John"))
@@ -59,7 +59,7 @@ class DirectorControllerTest {
     void testGetDirectorById_NotFound() throws Exception {
         when(directorService.getDirectorById(99L)).thenReturn(Optional.empty());
 
-        mockMvc.perform(get("/directors/99"))
+        mockMvc.perform(get("/api/directors/99"))
                 .andExpect(status().isNotFound());
     }
 
@@ -68,7 +68,7 @@ class DirectorControllerTest {
         Director director2 = Director.builder().id(2L).firstName("Jane").lastName("Smith").build();
         when(directorService.getAllDirectors()).thenReturn(List.of(director, director2));
 
-        mockMvc.perform(get("/directors"))
+        mockMvc.perform(get("/api/directors"))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.length()").value(2))
                 .andExpect(jsonPath("$[0].id").value(1L))
@@ -79,7 +79,7 @@ class DirectorControllerTest {
     void testCreateDirector() throws Exception {
         when(directorService.createDirector(any(Director.class))).thenReturn(director);
 
-        mockMvc.perform(post("/directors")
+        mockMvc.perform(post("/api/directors")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(director)))
                 .andExpect(status().isCreated())
@@ -96,7 +96,7 @@ class DirectorControllerTest {
 
         when(directorService.updateDirector(eq(1L), any(Director.class))).thenReturn(updated);
 
-        mockMvc.perform(put("/directors/1")
+        mockMvc.perform(put("/api/directors/1")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(updated)))
                 .andExpect(status().isOk())
@@ -108,7 +108,7 @@ class DirectorControllerTest {
         when(directorService.updateDirector(eq(99L), any(Director.class)))
                 .thenThrow(new IllegalArgumentException("Director not found"));
 
-        mockMvc.perform(put("/directors/99")
+        mockMvc.perform(put("/api/directors/99")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(director)))
                 .andExpect(status().isBadRequest())
@@ -119,7 +119,7 @@ class DirectorControllerTest {
     void testDeleteDirector_Found() throws Exception {
         doNothing().when(directorService).deleteDirector(1L);
 
-        mockMvc.perform(delete("/directors/1"))
+        mockMvc.perform(delete("/api/directors/1"))
                 .andExpect(status().isNoContent());
 
         verify(directorService).deleteDirector(1L);
@@ -129,7 +129,7 @@ class DirectorControllerTest {
     void testDeleteDirector_NotFound() throws Exception {
         doThrow(new IllegalArgumentException("Director not found")).when(directorService).deleteDirector(99L);
 
-        mockMvc.perform(delete("/directors/99"))
+        mockMvc.perform(delete("/api/directors/99"))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().string("Director not found"));
     }

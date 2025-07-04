@@ -2,6 +2,7 @@ package com.nbu.CSCB634;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.liquibase.LiquibaseAutoConfiguration;
 import org.springframework.context.annotation.ComponentScan;
 
 @SpringBootApplication
@@ -10,5 +11,4 @@ public class GradeCenterApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(GradeCenterApplication.class, args);
 	}
-
 }

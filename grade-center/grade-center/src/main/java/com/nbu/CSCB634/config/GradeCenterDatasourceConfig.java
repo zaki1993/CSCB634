@@ -3,6 +3,7 @@ package com.nbu.CSCB634.config;
 import com.zaxxer.hikari.HikariDataSource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -10,6 +11,7 @@ import org.springframework.boot.orm.jpa.EntityManagerFactoryBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import org.springframework.context.annotation.Profile;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
@@ -20,6 +22,7 @@ import javax.sql.DataSource;
 
 @Slf4j
 @Configuration
+@Profile("!test")
 @EnableTransactionManagement
 @EntityScan("com.nbu.CSCB634.model")
 @EnableJpaRepositories(basePackages = "com.nbu.CSCB634.repository",
@@ -34,6 +37,8 @@ public class GradeCenterDatasourceConfig {
     }
 
     @Bean
+    @Primary
+    @ConditionalOnMissingBean(DataSource.class)
     @ConfigurationProperties("spring.datasource.grade-center")
     public DataSource jpaDataSource() {
         return jpaDataSourceProperties().initializeDataSourceBuilder()

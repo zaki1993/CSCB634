@@ -1,73 +1,109 @@
+<!-- home.html -->
 <!DOCTYPE html>
-<html lang="en">
-
-<div th:replace="~{header.html}"></div>
+<html lang="bg" xmlns:th="http://www.thymeleaf.org">
+<div th:replace="header.html"></div>
 <body class="d-flex flex-column min-vh-100">
-    <main class="container mt-5">
-        <h1 class="text-center mb-4">Dashboard</h1>
+<main class="container mt-5">
+    <h1 class="text-center mb-4">Табло</h1>
 
-        <div class="row row-cols-1 row-cols-md-2 row-cols-lg-4 g-4">
-            <!-- Students Card -->
-            <div class="col">
-                <div class="card shadow-sm border-primary">
-                    <div class="card-body">
-                        <h5 class="card-title">Students</h5>
-                        <p class="card-text">Manage student information and assignments.</p>
-                        <p class="fs-4">Total: <span th:text="${studentsCount}" class="fw-bold"></span></p>
-                        <a href="/students" class="btn btn-primary">Go to Students</a>
-                    </div>
-                </div>
-            </div>
+    <div class="row row-cols-1 row-cols-md-3 row-cols-lg-4 g-4">
 
-            <!-- Teachers Card -->
-            <div class="col">
-                <div class="card shadow-sm border-primary">
-                    <div class="card-body">
-                        <h5 class="card-title">Teachers</h5>
-                        <p class="card-text">Manage teacher information and assignments.</p>
-                        <p class="fs-4">Total: <span th:text="${teachersCount}" class="fw-bold"></span></p>
-                        <a href="/teachers" class="btn btn-primary">Go to Teachers</a>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Diploma Assignments Card -->
-            <div class="col">
-                <div class="card shadow-sm border-primary">
-                    <div class="card-body">
-                        <h5 class="card-title">Diploma Assignments</h5>
-                        <p class="card-text">View and manage diploma assignments and their statuses.</p>
-                        <p class="fs-4">Total: <span th:text="${diplomaAssignmentsCount}" class="fw-bold"></span></p>
-                        <a href="/diploma-assignments" class="btn btn-primary">Go to Diploma Assignments</a>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Reports Card -->
-            <div class="col">
-                <div class="card shadow-sm border-primary">
-                    <div class="card-body">
-                        <h5 class="card-title">Reports</h5>
-                        <p class="card-text">Manage reports.</p>
-                        <a href="/reports" class="btn btn-primary">Go to Reports</a>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Diploma Defenses Card -->
-            <div class="col">
-                <div class="card shadow-sm border-primary">
-                    <div class="card-body">
-                        <h5 class="card-title">Diploma Defenses</h5>
-                        <p class="card-text">View and manage diploma defense records.</p>
-                        <p class="fs-4">Total: <span th:text="${diplomaDefensesCount}" class="fw-bold"></span></p>
-                        <a href="/diploma-defenses" class="btn btn-primary">Go to Diploma Defenses</a>
-                    </div>
+        <!-- Schools Card -->
+        <div class="col">
+            <div class="card shadow-sm border-primary h-100">
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title">Училища</h5>
+                    <p class="card-text">Управление на училищата.</p>
+                    <p class="fs-4">Общо: <span th:text="${schoolsCount}" class="fw-bold">0</span></p>
+                    <a href="/schools" class="btn btn-primary mt-auto">Към училища</a>
                 </div>
             </div>
         </div>
-    </main>
 
-    <div th:replace="~{footer.html}"></div>
+        <!-- Students Card -->
+        <div class="col">
+            <div class="card shadow-sm border-primary h-100">
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title">Ученици</h5>
+                    <p class="card-text">Управление на учениците и техните класове.</p>
+                    <p class="fs-4">Общо: <span th:text="${studentsCount}" class="fw-bold">0</span></p>
+                    <a href="/students" class="btn btn-primary mt-auto">Към ученици</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Teachers Card -->
+        <div class="col">
+            <div class="card shadow-sm border-primary h-100">
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title">Учители</h5>
+                    <p class="card-text">Управление на преподавателите и техните предмети.</p>
+                    <p class="fs-4">Общо: <span th:text="${teachersCount}" class="fw-bold">0</span></p>
+                    <a href="/teachers" class="btn btn-primary mt-auto">Към учители</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Directors Card -->
+        <div class="col">
+            <div class="card shadow-sm border-primary h-100">
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title">Директори</h5>
+                    <p class="card-text">Управление на директорите на училищата.</p>
+                    <p class="fs-4">Общо: <span th:text="${directorsCount}" class="fw-bold">0</span></p>
+                    <a href="/directors" class="btn btn-primary mt-auto">Към директори</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Parents Card -->
+        <div class="col">
+            <div class="card shadow-sm border-primary h-100">
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title">Родители</h5>
+                    <p class="card-text">Управление на родителите и връзки с учениците.</p>
+                    <p class="fs-4">Общо: <span th:text="${parentsCount}" class="fw-bold">0</span></p>
+                    <a href="/parents" class="btn btn-primary mt-auto">Към родители</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Subjects Card -->
+        <div class="col">
+            <div class="card shadow-sm border-primary h-100">
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title">Предмети</h5>
+                    <p class="card-text">Управление на учебните предмети.</p>
+                    <a href="/subjects" class="btn btn-primary mt-auto">Към предмети</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Grades Card -->
+        <div class="col">
+            <div class="card shadow-sm border-primary h-100">
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title">Оценки</h5>
+                    <p class="card-text">Въвеждане и управление на оценки.</p>
+                    <a href="/grades" class="btn btn-primary mt-auto">Към оценки</a>
+                </div>
+            </div>
+        </div>
+
+        <!-- Absences Card -->
+        <div class="col">
+            <div class="card shadow-sm border-primary h-100">
+                <div class="card-body d-flex flex-column">
+                    <h5 class="card-title">Отсъствия</h5>
+                    <p class="card-text">Управление на отсъствията на ученици.</p>
+                    <a href="/absences" class="btn btn-primary mt-auto">Към отсъствия</a>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</main>
+
+<div th:replace="footer.html"></div>
 </body>
 </html>
