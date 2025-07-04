@@ -9,5 +9,5 @@ import java.util.Set;
 
 @Repository
 public interface ParentRepository extends JpaRepository<Parent, Long> {
-    Set<Parent> findByChildrenContaining(Student student);
+    Set<Parent> findByStudentsContaining(Student student);
 }

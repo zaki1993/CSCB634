@@ -3,12 +3,11 @@ package com.nbu.CSCB634.service.auth;
 import com.nbu.CSCB634.model.Role;
 import com.nbu.CSCB634.model.auth.User;
 import com.nbu.CSCB634.repository.auth.UserRepository;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import jakarta.validation.Valid;
-import java.util.HashSet;
 import java.util.Optional;
 
 @Service

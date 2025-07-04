@@ -37,7 +37,7 @@ public class ParentService {
                 .map(parent -> {
                     parent.setFirstName(updatedParent.getFirstName());
                     parent.setLastName(updatedParent.getLastName());
-                    parent.setChildren(updatedParent.getChildren());
+                    parent.setStudents(updatedParent.getStudents());
                     return parentRepository.save(parent);
                 })
                 .orElseThrow(() -> new IllegalArgumentException("Parent not found"));

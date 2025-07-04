@@ -28,10 +28,19 @@ public class AcademicTerm {
     @ManyToOne
     @JoinColumn(name = "school_id")
     private School school;
-
     @ManyToMany
+    @JoinTable(
+            name = "academicterm_subjects",
+            joinColumns = @JoinColumn(name = "academic_term_id"),
+            inverseJoinColumns = @JoinColumn(name = "subject_id")
+    )
     private Set<Subject> subjects;
 
     @ManyToMany
-    private Set<Teacher> teachers; // Those assigned to the term
+    @JoinTable(
+            name = "academicterm_teachers",
+            joinColumns = @JoinColumn(name = "academic_term_id"),
+            inverseJoinColumns = @JoinColumn(name = "teacher_id")
+    )
+    private Set<Teacher> teachers;
 }

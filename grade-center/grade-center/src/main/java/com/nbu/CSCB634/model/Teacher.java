@@ -1,32 +1,26 @@
 package com.nbu.CSCB634.model;
 
+import com.nbu.CSCB634.model.auth.User;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 import java.util.Set;
 
 @Entity
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-public class Teacher {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @NotBlank
-    private String firstName;
-    @NotBlank
-    private String lastName;
-
-    // For simplicity subject names, could be entity
-    @ElementCollection
-    private Set<String> qualifiedSubjects;
-
+@SuperBuilder
+public class Teacher extends User {
     @ManyToOne
-    @JoinColumn(name = "school_id")
+    @JoinColumn(name = "school_id", nullable = false)
     private School school;
+
+    @ElementCollection
+    @CollectionTable(name = "teacher_qualified_subjects", joinColumns = @JoinColumn(name = "teacher_id"))
+    @Column(name = "qualifiedSubjects")
+    private Set<String> qualifiedSubjects;
 }

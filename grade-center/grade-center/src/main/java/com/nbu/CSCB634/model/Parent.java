@@ -1,31 +1,29 @@
 package com.nbu.CSCB634.model;
 
+import com.nbu.CSCB634.model.auth.User;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 import java.util.Set;
 
 @Entity
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-public class Parent {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @NotBlank
-    private String firstName;
-    @NotBlank
-    private String lastName;
+@SuperBuilder
+public class Parent extends User {
+    @ManyToOne
+    @JoinColumn(name = "school_id", nullable = false)
+    private School school;
 
     @ManyToMany
     @JoinTable(
             name = "parent_students",
             joinColumns = @JoinColumn(name = "parent_id"),
-            inverseJoinColumns = @JoinColumn(name = "student_id"))
-    private Set<Student> children;
+            inverseJoinColumns = @JoinColumn(name = "student_id")
+    )
+    private Set<Student> students;
 }

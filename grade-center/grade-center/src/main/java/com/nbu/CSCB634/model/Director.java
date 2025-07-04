@@ -1,29 +1,21 @@
 package com.nbu.CSCB634.model;
 
+import com.nbu.CSCB634.model.auth.User;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 @Entity
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-public class Director {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+@SuperBuilder
+public class Director extends User {
 
-    @NotBlank(message = "First name is mandatory")
-    private String firstName;
-
-    @NotBlank(message = "Last name is mandatory")
-    private String lastName;
-
-    // Other personal data fields if needed
-
-    @OneToOne
-    @JoinColumn(name = "school_id")
+    @ManyToOne
+    @JoinColumn(name = "school_id", nullable = false)
     private School school;
+
+    // You can add director-specific fields here
 }

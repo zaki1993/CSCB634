@@ -2,70 +2,72 @@ package com.nbu.CSCB634.model.auth;
 
 import com.nbu.CSCB634.model.Role;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.util.Collection;
+import java.util.List;
 
 @Entity
 @Table(name = "grade_center_users")
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
+@SuperBuilder
+@DiscriminatorColumn(name = "role", discriminatorType = DiscriminatorType.STRING)
 public class User implements UserDetails {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank(message = "Username is mandatory")
-    @Column(unique = true, nullable = false)
+    @Column(nullable = false, unique = true)
     private String username;
 
-    @NotBlank(message = "Password is mandatory")
+    @Column(nullable = false)
     private String password;
 
-    @Email
-    @NotBlank(message = "Email is mandatory")
-    @Column(unique = true, nullable = false)
+    @Column(nullable = false)
     private String email;
 
     @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
     private Role role;
 
-    // Implement UserDetails methods
+    @Column(nullable = false)
+    private String firstName;
+
+    @Column(nullable = false)
+    private String lastName;
+
+    // Provide authorities based on role
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return null; // Define roles if needed
-    }
-
-    @Override
-    public String getPassword() {
-        return password;
-    }
-
-    @Override
-    public String getUsername() {
-        return username;
+        return List.of((GrantedAuthority) () -> role.name());
     }
 
     @Override
     public boolean isAccountNonExpired() {
-        return true;
+        return true; // Customize if needed
     }
 
     @Override
     public boolean isAccountNonLocked() {
-        return true;
+        return true; // Customize if needed
     }
 
     @Override
     public boolean isCredentialsNonExpired() {
-        return true;
+        return true; // Customize if needed
     }
 
     @Override
     public boolean isEnabled() {
-        return true;
+        return true; // Customize if needed
     }
 }

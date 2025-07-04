@@ -1,30 +1,33 @@
 package com.nbu.CSCB634.model;
 
-import jakarta.persistence.*;
-import jakarta.validation.constraints.NotBlank;
-import lombok.*;
+import com.nbu.CSCB634.model.auth.User;
+import jakarta.persistence.Entity;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.ManyToOne;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
+
+import java.util.List;
 
 @Entity
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-public class Student {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-
-    @NotBlank
-    private String firstName;
-    @NotBlank
-    private String lastName;
+@SuperBuilder
+public class Student extends User {
 
     @ManyToOne
-    @JoinColumn(name = "school_id")
+    @JoinColumn(name = "school_id", nullable = false)
     private School school;
 
     @ManyToOne
     @JoinColumn(name = "class_id")
     private SchoolClass schoolClass;
+
+    // Example of ManyToMany with Parents
+    @ManyToMany(mappedBy = "students")
+    private List<Parent> parents;
 }
