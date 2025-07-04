@@ -14,6 +14,7 @@ dependencies {
     implementation("org.springframework:spring-webmvc")
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-actuator")
+    implementation("org.springframework.boot:spring-boot-starter-validation")
     implementation("org.springframework.data:spring-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
@@ -30,10 +31,6 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.8.1")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
-
-    implementation(project(":controller"))
-    implementation(project(":model"))
-    implementation(project(":service"))
 
     /*******************************************************************************************************
      *   Persistence
@@ -76,7 +73,7 @@ tasks.getByName<org.springframework.boot.gradle.tasks.bundling.BootBuildImage>("
 
 tasks {
     task<Exec>("dockerRun") {
-        group = "grad-system"
+        group = "grade-center"
         val args = mutableListOf<String>()
 
         args.add("docker")
@@ -89,7 +86,7 @@ tasks {
         args.add("on-failure:3")
         args.add("-e")
         // Allow docker to access the local database on the same machine
-        args.add("GRAD_SYSTEM_URL=jdbc:postgresql://host.docker.internal:5432/graduation-system-db")
+        args.add("GRAD_SYSTEM_URL=jdbc:postgresql://host.docker.internal:5432/grade-center-db")
         args.add("-p")
         args.add("8080:8080")
         args.add(graduationSystemImageName)

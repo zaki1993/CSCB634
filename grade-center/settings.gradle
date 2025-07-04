@@ -1,7 +1,3 @@
 rootProject.name = "grade-center"
 
-include 'app'
-include 'controller'
-include 'model'
-include 'service'
-
+include 'grade-center'
