@@ -1,14 +1,13 @@
 package com.nbu.CSCB634.service;
 
 import com.nbu.CSCB634.model.Teacher;
+import com.nbu.CSCB634.model.auth.User;
 import com.nbu.CSCB634.repository.TeacherRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 import java.util.Optional;
@@ -33,15 +32,17 @@ class TeacherServiceTest {
 
     @Test
     void testCreateTeacher_Success() {
+        User user = User.builder().firstName("Bob").lastName("Smith").build();
         Teacher teacher = new Teacher();
         teacher.setId(1L);
-        teacher.getUser().setFirstName("Bob");
+        teacher.setUser(user);
 
         when(teacherRepository.save(any(Teacher.class))).thenReturn(teacher);
 
         Teacher created = teacherService.createTeacher(teacher);
         assertThat(created).isNotNull();
         assertThat(created.getUser().getFirstName()).isEqualTo("Bob");
+        assertThat(created.getUser().getLastName()).isEqualTo("Smith");
     }
 
     @Test
@@ -76,21 +77,34 @@ class TeacherServiceTest {
 
     @Test
     void testUpdateTeacher_Success() {
+        // Existing teacher with user details
+        User existingUser = User.builder()
+                .firstName("Old")
+                .lastName("Name")
+                .email("old@example.com")
+                .build();
+
         Teacher existing = new Teacher();
         existing.setId(1L);
-        existing.getUser().setFirstName("Old");
-        existing.getUser().setLastName("Name");
+        existing.setUser(existingUser);
+
+        // Update with new user details
+        User updateUser = new User();
+        updateUser.setFirstName("New");
+        updateUser.setLastName("NameNew");
+        updateUser.setEmail("new@example.com");
 
         Teacher update = new Teacher();
-        update.getUser().setFirstName("New");
-        update.getUser().setLastName("NameNew");
+        update.setUser(updateUser);
 
         when(teacherRepository.findById(1L)).thenReturn(Optional.of(existing));
         when(teacherRepository.save(any(Teacher.class))).thenReturn(existing);
 
         Teacher updated = teacherService.updateTeacher(1L, update);
+
         assertThat(updated.getUser().getFirstName()).isEqualTo("New");
         assertThat(updated.getUser().getLastName()).isEqualTo("NameNew");
+        assertThat(updated.getUser().getEmail()).isEqualTo("new@example.com");
     }
 
     @Test
@@ -112,7 +126,7 @@ class TeacherServiceTest {
         doNothing().when(teacherRepository).delete(existing);
 
         teacherService.deleteTeacher(1L);
-        verify(teacherRepository).delete(existing);
+        verify(teacherRepository, times(1)).delete(existing);
     }
 
     @Test

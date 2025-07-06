@@ -7,11 +7,10 @@ import com.nbu.CSCB634.service.ParentService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.List;
@@ -19,10 +18,11 @@ import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
-
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
+@WebMvcTest(ParentControllerTest.class)
+@ActiveProfiles("test")
 class ParentControllerTest {
 
     @Autowired
@@ -36,10 +36,10 @@ class ParentControllerTest {
     private Parent parent;
 
     private User user = User.builder()
-                            .id(1L)
-                            .username("johndoe")
-                            .password("password")
-                            .build();
+            .id(1L)
+            .username("johndoe")
+            .password("password")
+            .build();
 
     @BeforeEach
     void setup() {

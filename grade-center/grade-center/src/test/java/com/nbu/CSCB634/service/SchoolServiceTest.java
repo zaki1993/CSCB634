@@ -4,11 +4,9 @@ import com.nbu.CSCB634.model.School;
 import com.nbu.CSCB634.repository.SchoolRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.List;
 import java.util.Optional;
@@ -48,11 +46,14 @@ class SchoolServiceTest {
     void testGetSchoolById_Found() {
         School school = new School();
         school.setId(1L);
+        school.setName("Example School");
 
         when(schoolRepository.findById(1L)).thenReturn(Optional.of(school));
 
         Optional<School> result = schoolService.getSchoolById(1L);
         assertThat(result).isPresent();
+        assertThat(result.get().getId()).isEqualTo(1L);
+        assertThat(result.get().getName()).isEqualTo("Example School");
     }
 
     @Test
@@ -67,21 +68,24 @@ class SchoolServiceTest {
     void testUpdateSchool_Success() {
         School existing = new School();
         existing.setId(1L);
-        existing.setName("Old");
+        existing.setName("Old Name");
 
         School update = new School();
-        update.setName("New");
+        update.setName("New Name");
 
         when(schoolRepository.findById(1L)).thenReturn(Optional.of(existing));
         when(schoolRepository.save(any(School.class))).thenReturn(existing);
 
         School updated = schoolService.updateSchool(1L, update);
-        assertThat(updated.getName()).isEqualTo("New");
+
+        assertThat(updated.getName()).isEqualTo("New Name");
     }
 
     @Test
     void testUpdateSchool_NotFound() {
         School update = new School();
+        update.setName("New Name");
+
         when(schoolRepository.findById(99L)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> schoolService.updateSchool(99L, update))
@@ -93,12 +97,14 @@ class SchoolServiceTest {
     void testDeleteSchool_Success() {
         School existing = new School();
         existing.setId(1L);
+        existing.setName("Test School");
 
         when(schoolRepository.findById(1L)).thenReturn(Optional.of(existing));
         doNothing().when(schoolRepository).delete(existing);
 
         schoolService.deleteSchool(1L);
-        verify(schoolRepository).delete(existing);
+
+        verify(schoolRepository, times(1)).delete(existing);
     }
 
     @Test
@@ -113,10 +119,19 @@ class SchoolServiceTest {
     @Test
     void testGetAllSchools() {
         School s1 = new School();
+        s1.setId(1L);
+        s1.setName("School A");
+
         School s2 = new School();
+        s2.setId(2L);
+        s2.setName("School B");
 
         when(schoolRepository.findAll()).thenReturn(List.of(s1, s2));
-        var schools = schoolService.getAllSchools();
+
+        List<School> schools = schoolService.getAllSchools();
+
         assertThat(schools).hasSize(2);
+        assertThat(schools.get(0).getName()).isEqualTo("School A");
+        assertThat(schools.get(1).getName()).isEqualTo("School B");
     }
 }

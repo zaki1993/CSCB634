@@ -1,15 +1,15 @@
 package com.nbu.CSCB634.service;
 
 import com.nbu.CSCB634.model.Director;
+import com.nbu.CSCB634.model.auth.User;
 import com.nbu.CSCB634.repository.DirectorRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -34,24 +34,29 @@ class DirectorServiceTest {
     void testCreateDirector_Success() {
         Director dir = new Director();
         dir.setId(1L);
+        dir.setUser(new User());
         dir.getUser().setFirstName("John");
         dir.getUser().setLastName("Doe");
 
         when(directorRepository.save(any(Director.class))).thenReturn(dir);
 
         Director result = directorService.createDirector(dir);
+
         assertThat(result).isNotNull();
         assertThat(result.getUser().getFirstName()).isEqualTo("John");
-        verify(directorRepository).save(dir);
+        assertThat(result.getUser().getLastName()).isEqualTo("Doe");
+        verify(directorRepository, times(1)).save(dir);
     }
 
     @Test
     void testGetDirectorById_Found() {
         Director director = new Director();
         director.setId(1L);
+
         when(directorRepository.findById(1L)).thenReturn(Optional.of(director));
 
         Optional<Director> result = directorService.getDirectorById(1L);
+
         assertThat(result).isPresent();
         assertThat(result.get().getId()).isEqualTo(1L);
     }
@@ -61,6 +66,7 @@ class DirectorServiceTest {
         when(directorRepository.findById(99L)).thenReturn(Optional.empty());
 
         Optional<Director> result = directorService.getDirectorById(99L);
+
         assertThat(result).isEmpty();
     }
 
@@ -68,9 +74,11 @@ class DirectorServiceTest {
     void testGetAllDirectors() {
         Director d1 = new Director();
         Director d2 = new Director();
-        when(directorRepository.findAll()).thenReturn(java.util.List.of(d1, d2));
 
-        var result = directorService.getAllDirectors();
+        when(directorRepository.findAll()).thenReturn(List.of(d1, d2));
+
+        List<Director> result = directorService.getAllDirectors();
+
         assertThat(result).hasSize(2);
     }
 
@@ -78,10 +86,12 @@ class DirectorServiceTest {
     void testUpdateDirector_Success() {
         Director existing = new Director();
         existing.setId(1L);
+        existing.setUser(new User());
         existing.getUser().setFirstName("Old");
         existing.getUser().setLastName("Name");
 
         Director update = new Director();
+        update.setUser(new User());
         update.getUser().setFirstName("New");
         update.getUser().setLastName("NameNew");
 
@@ -89,6 +99,7 @@ class DirectorServiceTest {
         when(directorRepository.save(any(Director.class))).thenReturn(existing);
 
         Director updated = directorService.updateDirector(1L, update);
+
         assertThat(updated.getUser().getFirstName()).isEqualTo("New");
         assertThat(updated.getUser().getLastName()).isEqualTo("NameNew");
     }
@@ -96,6 +107,8 @@ class DirectorServiceTest {
     @Test
     void testUpdateDirector_NotFound() {
         Director update = new Director();
+        update.setUser(new User());
+
         when(directorRepository.findById(99L)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> directorService.updateDirector(99L, update))
@@ -112,7 +125,8 @@ class DirectorServiceTest {
         doNothing().when(directorRepository).delete(existing);
 
         directorService.deleteDirector(1L);
-        verify(directorRepository).delete(existing);
+
+        verify(directorRepository, times(1)).delete(existing);
     }
 
     @Test

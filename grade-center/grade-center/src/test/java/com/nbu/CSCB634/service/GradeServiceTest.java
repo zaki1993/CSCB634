@@ -7,11 +7,9 @@ import com.nbu.CSCB634.repository.GradeRepository;
 import com.nbu.CSCB634.repository.StudentRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -47,9 +45,10 @@ class GradeServiceTest {
         when(gradeRepository.save(any(Grade.class))).thenReturn(grade);
 
         Grade savedGrade = gradeService.createGrade(grade);
+
         assertThat(savedGrade).isNotNull();
         assertThat(savedGrade.getValue()).isEqualTo(5);
-        verify(gradeRepository).save(grade);
+        verify(gradeRepository, times(1)).save(grade);
     }
 
     @Test
@@ -60,6 +59,7 @@ class GradeServiceTest {
         Grade grade1 = new Grade();
         grade1.setId(1L);
         grade1.setStudent(student);
+
         Grade grade2 = new Grade();
         grade2.setId(2L);
         grade2.setStudent(student);
@@ -68,7 +68,10 @@ class GradeServiceTest {
         when(gradeRepository.findByStudent(student)).thenReturn(List.of(grade1, grade2));
 
         List<Grade> result = gradeService.getGradesByStudentId(1L);
+
         assertThat(result).hasSize(2);
+        assertThat(result.get(0).getStudent().getId()).isEqualTo(1L);
+        assertThat(result.get(1).getStudent().getId()).isEqualTo(1L);
     }
 
     @Test
@@ -84,9 +87,11 @@ class GradeServiceTest {
     void testGetGradeById_Found() {
         Grade grade = new Grade();
         grade.setId(1L);
+
         when(gradeRepository.findById(1L)).thenReturn(Optional.of(grade));
 
         Optional<Grade> result = gradeService.getGradeById(1L);
+
         assertThat(result).isPresent();
         assertThat(result.get().getId()).isEqualTo(1L);
     }
@@ -96,6 +101,7 @@ class GradeServiceTest {
         when(gradeRepository.findById(99L)).thenReturn(Optional.empty());
 
         Optional<Grade> result = gradeService.getGradeById(99L);
+
         assertThat(result).isEmpty();
     }
 
@@ -105,27 +111,28 @@ class GradeServiceTest {
         existing.setId(1L);
         existing.setValue(4);
         existing.setDateAwarded(LocalDate.now().minusDays(1));
-        Subject oldSubject = Subject.builder().id(1L).name("Math").build();
-        existing.setSubject(oldSubject);
+        existing.setSubject(Subject.builder().id(1L).name("Math").build());
 
         Grade updatedInfo = new Grade();
         updatedInfo.setValue(5);
         updatedInfo.setDateAwarded(LocalDate.now());
-        Subject newSubject = Subject.builder().id(2L).name("Physics").build();
-        updatedInfo.setSubject(newSubject);
+        updatedInfo.setSubject(Subject.builder().id(2L).name("Physics").build());
 
         when(gradeRepository.findById(1L)).thenReturn(Optional.of(existing));
         when(gradeRepository.save(any(Grade.class))).thenReturn(existing);
 
         Grade updated = gradeService.updateGrade(1L, updatedInfo);
+
         assertThat(updated.getValue()).isEqualTo(5);
         assertThat(updated.getDateAwarded()).isEqualTo(LocalDate.now());
-        assertThat(updated.getSubject()).isEqualTo(newSubject);
+        assertThat(updated.getSubject().getName()).isEqualTo("Physics");
     }
 
     @Test
     void testUpdateGrade_NotFound() {
         Grade updatedInfo = new Grade();
+        updatedInfo.setValue(6);
+
         when(gradeRepository.findById(99L)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> gradeService.updateGrade(99L, updatedInfo))
@@ -142,7 +149,8 @@ class GradeServiceTest {
         doNothing().when(gradeRepository).delete(existing);
 
         gradeService.deleteGrade(1L);
-        verify(gradeRepository).delete(existing);
+
+        verify(gradeRepository, times(1)).delete(existing);
     }
 
     @Test
