@@ -5,13 +5,18 @@ import com.nbu.CSCB634.model.auth.User;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.test.context.TestPropertySource;
 
 import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@DataJpaTest
+@TestPropertySource(properties = "spring.sql.init.mode=never")
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class TeacherRepositoryTest {
 
     @Autowired
@@ -41,14 +46,20 @@ class TeacherRepositoryTest {
     void testFindAll() {
         User u1 = User.builder()
                 .firstName("Bob")
+                .password("Bob")
                 .lastName("Builder")
+                .email("bob@builder.com")
+                .username("builder1.com")
                 .build();
         User u2 = User.builder()
-                .firstName("Bob")
-                .lastName("Builder")
+                .firstName("Bob1")
+                .password("Bob1")
+                .lastName("Builder1")
+                .email("bob1@builder.com")
+                .username("builder2.com")
                 .build();
-        Teacher t1 = Teacher.builder().user(u1).build();
-        Teacher t2 = Teacher.builder().user(u2).build();
+        Teacher t1 = Teacher.builder().id(u1.getId()).user(u1).build();
+        Teacher t2 = Teacher.builder().id(u2.getId()).user(u2).build();
         teacherRepository.saveAll(List.of(t1, t2));
 
         List<Teacher> teachers = teacherRepository.findAll();
@@ -60,7 +71,10 @@ class TeacherRepositoryTest {
     void testDelete() {
         User u = User.builder()
                 .firstName("Bob")
+                .password("Bob")
                 .lastName("Builder")
+                .email("bob1@builder.com")
+                .username("builder2.com")
                 .build();
         Teacher teacher = Teacher.builder().user(u).build();
         teacher = teacherRepository.save(teacher);

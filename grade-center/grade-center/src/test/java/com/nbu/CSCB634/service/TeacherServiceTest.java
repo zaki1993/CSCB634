@@ -95,6 +95,7 @@ class TeacherServiceTest {
         updateUser.setEmail("new@example.com");
 
         Teacher update = new Teacher();
+        update.setId(1L);
         update.setUser(updateUser);
 
         when(teacherRepository.findById(1L)).thenReturn(Optional.of(existing));

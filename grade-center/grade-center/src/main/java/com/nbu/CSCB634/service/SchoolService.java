@@ -16,22 +16,18 @@ public class SchoolService {
 
     private final SchoolRepository schoolRepository;
 
-    @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'DIRECTOR')")
     public School createSchool(@Valid School school) {
         return schoolRepository.save(school);
     }
 
-    @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'DIRECTOR', 'TEACHER', 'PARENT', 'STUDENT')")
     public Optional<School> getSchoolById(Long id) {
         return schoolRepository.findById(id);
     }
 
-    @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'DIRECTOR', 'TEACHER', 'PARENT', 'STUDENT')")
     public List<School> getAllSchools() {
         return schoolRepository.findAll();
     }
 
-    @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'DIRECTOR')")
     public School updateSchool(Long id, @Valid School schoolDetails) {
         return schoolRepository.findById(id)
                 .map(school -> {
@@ -41,10 +37,13 @@ public class SchoolService {
                 }).orElseThrow(() -> new IllegalArgumentException("School not found"));
     }
 
-    @PreAuthorize("hasRole('ADMINISTRATOR')")
     public void deleteSchool(Long id) {
         School school = schoolRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("School not found"));
         schoolRepository.delete(school);
+    }
+
+    public List<School> getAll() {
+        return schoolRepository.findAll();
     }
 }
