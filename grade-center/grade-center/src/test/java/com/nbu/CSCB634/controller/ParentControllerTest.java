@@ -7,7 +7,10 @@ import com.nbu.CSCB634.service.ParentService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -16,6 +19,7 @@ import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
+
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -31,15 +35,17 @@ class ParentControllerTest {
 
     private Parent parent;
 
+    private User user = User.builder()
+                            .id(1L)
+                            .username("johndoe")
+                            .password("password")
+                            .build();
+
     @BeforeEach
     void setup() {
-        User u = User.builder()
-                .firstName("Mary")
-                .lastName("Poppins")
-                .build();
         parent = Parent.builder()
                 .id(1L)
-                .user(u)
+                .user(user)
                 .build();
     }
 
@@ -63,9 +69,7 @@ class ParentControllerTest {
 
     @Test
     void testGetAllParents() throws Exception {
-        User u = User.builder().firstName("John").lastName("Doe")
-                .build();
-        Parent p2 = Parent.builder().id(2L).user(u).build();
+        Parent p2 = Parent.builder().id(2L).user(user).build();
 
         when(parentService.getAllParents()).thenReturn(List.of(parent, p2));
 
@@ -87,13 +91,9 @@ class ParentControllerTest {
 
     @Test
     void testUpdateParent_Found() throws Exception {
-        User u = User.builder()
-                .firstName("Mary Updated")
-                .lastName("Poppins Updated")
-                .build();
         Parent updated = Parent.builder()
                 .id(1L)
-                .user(u)
+                .user(user)
                 .build();
 
         when(parentService.updateParent(eq(1L), any(Parent.class))).thenReturn(updated);

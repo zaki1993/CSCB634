@@ -6,17 +6,20 @@ import com.nbu.CSCB634.model.auth.User;
 import com.nbu.CSCB634.service.DirectorService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.mockito.*;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.List;
 import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
+
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -33,14 +36,17 @@ class DirectorControllerTest {
 
     private Director director;
 
+    User user = User.builder()
+            .id(1L)
+            .username("johndoe")
+            .password("password")
+            .build();
+
     @BeforeEach
     void setup() {
-        User u = User.builder()
-                .firstName("John")
-                .lastName("Doe")
-                .build();
         director = Director.builder()
-                .user(u)
+                .id(1L)
+                .user(user)
                 .build();
     }
 
@@ -65,11 +71,7 @@ class DirectorControllerTest {
 
     @Test
     void testGetAllDirectors() throws Exception {
-        User u = User.builder()
-                .firstName("John")
-                .lastName("Doe")
-                .build();
-        Director director2 = Director.builder().id(2L).user(u).build();
+        Director director2 = Director.builder().id(2L).user(user).build();
         when(directorService.getAllDirectors()).thenReturn(List.of(director, director2));
 
         mockMvc.perform(get("/api/directors"))
@@ -92,13 +94,9 @@ class DirectorControllerTest {
 
     @Test
     void testUpdateDirector_Found() throws Exception {
-        User u = User.builder()
-                .firstName("John")
-                .lastName("Doe")
-                .build();
         Director updated = Director.builder()
                 .id(1L)
-                .user(u)
+                .user(user)
                 .build();
 
         when(directorService.updateDirector(eq(1L), any(Director.class))).thenReturn(updated);

@@ -12,10 +12,15 @@ import static org.assertj.core.api.Assertions.assertThat;
 @ExtendWith(MockitoExtension.class)
 class GradeModelTest {
 
+    private User user = User.builder()
+                            .id(1L)
+                            .username("johndoe")
+                            .password("password")
+                            .build();
+
     @Test
     void testBuilderAndGetters() {
-        User u = User.builder().firstName("Stu").lastName("Dent").build();
-        Student student = Student.builder().id(100L).user(u).build();
+        Student student = Student.builder().id(100L).user(user).build();
         Subject subject = Subject.builder().id(10L).name("Math").build();
 
         Grade grade = Grade.builder()

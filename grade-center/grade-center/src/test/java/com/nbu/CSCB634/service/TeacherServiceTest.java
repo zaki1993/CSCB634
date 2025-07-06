@@ -35,13 +35,13 @@ class TeacherServiceTest {
     void testCreateTeacher_Success() {
         Teacher teacher = new Teacher();
         teacher.setId(1L);
-        teacher.setFirstName("Bob");
+        teacher.getUser().setFirstName("Bob");
 
         when(teacherRepository.save(any(Teacher.class))).thenReturn(teacher);
 
         Teacher created = teacherService.createTeacher(teacher);
         assertThat(created).isNotNull();
-        assertThat(created.getFirstName()).isEqualTo("Bob");
+        assertThat(created.getUser().getFirstName()).isEqualTo("Bob");
     }
 
     @Test
@@ -78,19 +78,19 @@ class TeacherServiceTest {
     void testUpdateTeacher_Success() {
         Teacher existing = new Teacher();
         existing.setId(1L);
-        existing.setFirstName("Old");
-        existing.setLastName("Name");
+        existing.getUser().setFirstName("Old");
+        existing.getUser().setLastName("Name");
 
         Teacher update = new Teacher();
-        update.setFirstName("New");
-        update.setLastName("NameNew");
+        update.getUser().setFirstName("New");
+        update.getUser().setLastName("NameNew");
 
         when(teacherRepository.findById(1L)).thenReturn(Optional.of(existing));
         when(teacherRepository.save(any(Teacher.class))).thenReturn(existing);
 
         Teacher updated = teacherService.updateTeacher(1L, update);
-        assertThat(updated.getFirstName()).isEqualTo("New");
-        assertThat(updated.getLastName()).isEqualTo("NameNew");
+        assertThat(updated.getUser().getFirstName()).isEqualTo("New");
+        assertThat(updated.getUser().getLastName()).isEqualTo("NameNew");
     }
 
     @Test

@@ -35,13 +35,13 @@ class StudentServiceTest {
     void testCreateStudent_Success() {
         Student student = new Student();
         student.setId(1L);
-        student.setFirstName("Alice");
+        student.getUser().setFirstName("Alice");
 
         when(studentRepository.save(any(Student.class))).thenReturn(student);
 
         Student created = studentService.createStudent(student);
         assertThat(created).isNotNull();
-        assertThat(created.getFirstName()).isEqualTo("Alice");
+        assertThat(created.getUser().getFirstName()).isEqualTo("Alice");
     }
 
     @Test
@@ -78,19 +78,19 @@ class StudentServiceTest {
     void testUpdateStudent_Success() {
         Student existing = new Student();
         existing.setId(1L);
-        existing.setFirstName("Old");
-        existing.setLastName("Name");
+        existing.getUser().setFirstName("Old");
+        existing.getUser().setLastName("Name");
 
         Student update = new Student();
-        update.setFirstName("New");
-        update.setLastName("NameNew");
+        update.getUser().setFirstName("New");
+        update.getUser().setLastName("NameNew");
 
         when(studentRepository.findById(1L)).thenReturn(Optional.of(existing));
         when(studentRepository.save(any(Student.class))).thenReturn(existing);
 
         Student updated = studentService.updateStudent(1L, update);
-        assertThat(updated.getFirstName()).isEqualTo("New");
-        assertThat(updated.getLastName()).isEqualTo("NameNew");
+        assertThat(updated.getUser().getFirstName()).isEqualTo("New");
+        assertThat(updated.getUser().getLastName()).isEqualTo("NameNew");
     }
 
     @Test

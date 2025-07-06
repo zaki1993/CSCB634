@@ -3,6 +3,7 @@ package com.nbu.CSCB634.repository;
 import com.nbu.CSCB634.model.Grade;
 import com.nbu.CSCB634.model.Student;
 import com.nbu.CSCB634.model.Subject;
+import com.nbu.CSCB634.model.auth.User;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,10 +22,16 @@ class GradeRepositoryTest {
     @Autowired
     private StudentRepository studentRepository;
 
+    private User user = User.builder()
+                            .id(1L)
+                            .username("johndoe")
+                            .password("password")
+                            .build();
+
     @Test
     @DisplayName("Save grade and find by ID")
     void testSaveAndFindById() {
-        Student student = Student.builder().firstName("Test").lastName("Student").build();
+        Student student = Student.builder().user(user).build();
         student = studentRepository.save(student);
 
         Subject subject = Subject.builder().name("Math").build();
@@ -47,7 +54,7 @@ class GradeRepositoryTest {
     @Test
     @DisplayName("Find grades by student")
     void testFindByStudent() {
-        Student student = Student.builder().firstName("Find").lastName("Me").build();
+        Student student = Student.builder().user(user).build();
         student = studentRepository.save(student);
 
         Grade grade1 = Grade.builder()
@@ -73,7 +80,7 @@ class GradeRepositoryTest {
     @Test
     @DisplayName("Delete grade")
     void testDelete() {
-        Student student = Student.builder().firstName("Del").lastName("Grade").build();
+        Student student = Student.builder().user(user).build();
         student = studentRepository.save(student);
 
         Grade grade = Grade.builder()
@@ -94,7 +101,7 @@ class GradeRepositoryTest {
     @Test
     @DisplayName("Find by student returns empty list if none")
     void testFindByStudentNoGrades() {
-        Student student = Student.builder().firstName("NoGrades").lastName("Here").build();
+        Student student = Student.builder().user(user).build();
         student = studentRepository.save(student);
 
         List<Grade> grades = gradeRepository.findByStudent(student);

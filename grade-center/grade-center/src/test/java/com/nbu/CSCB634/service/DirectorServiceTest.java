@@ -34,14 +34,14 @@ class DirectorServiceTest {
     void testCreateDirector_Success() {
         Director dir = new Director();
         dir.setId(1L);
-        dir.setFirstName("John");
-        dir.setLastName("Doe");
+        dir.getUser().setFirstName("John");
+        dir.getUser().setLastName("Doe");
 
         when(directorRepository.save(any(Director.class))).thenReturn(dir);
 
         Director result = directorService.createDirector(dir);
         assertThat(result).isNotNull();
-        assertThat(result.getFirstName()).isEqualTo("John");
+        assertThat(result.getUser().getFirstName()).isEqualTo("John");
         verify(directorRepository).save(dir);
     }
 
@@ -78,19 +78,19 @@ class DirectorServiceTest {
     void testUpdateDirector_Success() {
         Director existing = new Director();
         existing.setId(1L);
-        existing.setFirstName("Old");
-        existing.setLastName("Name");
+        existing.getUser().setFirstName("Old");
+        existing.getUser().setLastName("Name");
 
         Director update = new Director();
-        update.setFirstName("New");
-        update.setLastName("NameNew");
+        update.getUser().setFirstName("New");
+        update.getUser().setLastName("NameNew");
 
         when(directorRepository.findById(1L)).thenReturn(Optional.of(existing));
         when(directorRepository.save(any(Director.class))).thenReturn(existing);
 
         Director updated = directorService.updateDirector(1L, update);
-        assertThat(updated.getFirstName()).isEqualTo("New");
-        assertThat(updated.getLastName()).isEqualTo("NameNew");
+        assertThat(updated.getUser().getFirstName()).isEqualTo("New");
+        assertThat(updated.getUser().getLastName()).isEqualTo("NameNew");
     }
 
     @Test

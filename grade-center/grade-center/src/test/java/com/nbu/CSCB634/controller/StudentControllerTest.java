@@ -7,7 +7,10 @@ import com.nbu.CSCB634.service.StudentService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -16,6 +19,7 @@ import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
+
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -31,15 +35,17 @@ class StudentControllerTest {
 
     private Student student;
 
+    private User user = User.builder()
+                            .id(1L)
+                            .username("johndoe")
+                            .password("password")
+                            .build();
+
     @BeforeEach
     void setup() {
-        User u = User.builder()
-                .firstName("Alice")
-                .lastName("Wonderland")
-                .build();
         student = Student.builder()
                 .id(1L)
-                .user(u)
+                .user(user)
                 .build();
     }
 
@@ -63,10 +69,7 @@ class StudentControllerTest {
 
     @Test
     void testGetAllStudents() throws Exception {
-        User u = User.builder()
-                .firstName("Bob").lastName("Builder")
-                .build();
-        Student s2 = Student.builder().id(2L).user(u).build();
+        Student s2 = Student.builder().id(2L).user(user).build();
 
         when(studentService.getAllStudents()).thenReturn(List.of(student, s2));
 
@@ -88,14 +91,9 @@ class StudentControllerTest {
 
     @Test
     void testUpdateStudent_Found() throws Exception {
-
-        User u = User.builder()
-                .firstName("Alice Updated")
-                .lastName("Wonderland Updated")
-                .build();
         Student updated = Student.builder()
                 .id(1L)
-                .user(u)
+                .user(user)
                 .build();
 
         when(studentService.updateStudent(eq(1L), any(Student.class))).thenReturn(updated);

@@ -28,7 +28,7 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQLDialect
   datasource:
     grade-center:
-      url: ${GRADE_CENTER_URL:jdbc:postgresql://localhost:5433/grade-center-db}
+      url: ${GRADE_CENTER_URL:jdbc:postgresql://localhost:5432/grade-center-db}
       username: ${GRADE_CENTER_USERNAME:postgres}
       password: ${GRADE_CENTER_PASSWORD:postgres}
       driver-class-name: org.postgresql.Driver

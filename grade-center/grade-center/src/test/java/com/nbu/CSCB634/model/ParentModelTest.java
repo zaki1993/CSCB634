@@ -5,19 +5,22 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.*;
 
 @ExtendWith(MockitoExtension.class)
 class ParentModelTest {
 
+    private User user = User.builder()
+                            .id(1L)
+                            .username("johndoe")
+                            .password("password")
+                            .build();
+
     @Test
     void testBuilderAndGetters() {
-        User u = User.builder()
-                .firstName("Mary")
-                .lastName("Poppins")
-                .build();
         Parent parent = Parent.builder()
-                .id(10L).user(u)
+                .id(10L)
+                .user(user)
                 .build();
 
         assertThat(parent.getId()).isEqualTo(10L);
@@ -27,17 +30,15 @@ class ParentModelTest {
 
     @Test
     void testSetterAndEqualsHashCode() {
-        User u = User.builder()
-                .firstName("Tom")
-                .lastName("Jones")
-                .build();
         Parent p1 = new Parent();
         p1.setId(10L);
-        p1.setUser(u);
+        p1.getUser().setFirstName("Tom");
+        p1.getUser().setLastName("Jones");
 
         Parent p2 = new Parent();
         p2.setId(10L);
-        p1.setUser(u);
+        p2.getUser().setFirstName("Tom");
+        p2.getUser().setLastName("Jones");
 
         assertThat(p1).isEqualTo(p2);
         assertThat(p1.hashCode()).isEqualTo(p2.hashCode());
@@ -48,13 +49,9 @@ class ParentModelTest {
 
     @Test
     void testToStringNotNull() {
-        User u = User.builder()
-                .firstName("Test")
-                .lastName("Test")
-                .build();
         Parent parent = new Parent();
         parent.setId(1L);
-        parent.setUser(u);
+        parent.getUser().setFirstName("Test");
 
         assertThat(parent.toString()).isNotNull();
     }

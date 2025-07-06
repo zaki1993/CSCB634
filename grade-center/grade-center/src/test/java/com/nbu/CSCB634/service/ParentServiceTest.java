@@ -35,13 +35,13 @@ class ParentServiceTest {
     void testCreateParent_Success() {
         Parent parent = new Parent();
         parent.setId(1L);
-        parent.setFirstName("Jane");
+        parent.getUser().setFirstName("Jane");
 
         when(parentRepository.save(any(Parent.class))).thenReturn(parent);
 
         Parent result = parentService.createParent(parent);
         assertThat(result).isNotNull();
-        assertThat(result.getFirstName()).isEqualTo("Jane");
+        assertThat(result.getUser().getFirstName()).isEqualTo("Jane");
     }
 
     @Test
@@ -76,16 +76,16 @@ class ParentServiceTest {
     void testUpdateParent_Success() {
         Parent existing = new Parent();
         existing.setId(1L);
-        existing.setFirstName("Old");
+        existing.getUser().setFirstName("Old");
 
         Parent update = new Parent();
-        update.setFirstName("New");
+        update.getUser().setFirstName("New");
 
         when(parentRepository.findById(1L)).thenReturn(Optional.of(existing));
         when(parentRepository.save(any(Parent.class))).thenReturn(existing);
 
         Parent updated = parentService.updateParent(1L, update);
-        assertThat(updated.getFirstName()).isEqualTo("New");
+        assertThat(updated.getUser().getFirstName()).isEqualTo("New");
     }
 
     @Test
