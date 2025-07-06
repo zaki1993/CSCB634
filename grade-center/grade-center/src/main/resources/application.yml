@@ -8,6 +8,9 @@ logging:
     root: ${LOGGING_LEVEL:TRACE}
 
 spring:
+  sql:
+    init:
+      mode: always
   liquibase:
     enabled: false
   thymeleaf:
@@ -19,7 +22,7 @@ spring:
     throw-exception-if-no-handler-found: true
   jpa:
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: update
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
