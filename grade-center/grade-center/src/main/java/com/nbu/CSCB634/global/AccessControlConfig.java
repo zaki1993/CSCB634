@@ -34,6 +34,22 @@ public class AccessControlConfig {
     }
 
     /**
+     * Return if the current user is parent
+     * @return
+     */
+    public static boolean isParent() {
+        return hasRole("PARENT");
+    }
+
+    /**
+     * Return if the current user is director
+     * @return
+     */
+    public static boolean isDirector() {
+        return hasRole("DIRECTOR");
+    }
+
+    /**
      * Returns the username of the current logged-in user.
      *
      * @return

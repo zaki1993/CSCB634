@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="bg" xmlns:th="http://www.thymeleaf.org">
+<div th:insert="~{header :: head}"></div>
+<body>
+    <div th:replace="~{header :: header}"></div>
+
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-12">
+                <!-- Навигационни бутони -->
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <a th:href="@{/schools}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left"></i> Назад към списъка
+                    </a>
+                    <div th:if="${T(com.nbu.CSCB634.global.AccessControlConfig).isAdmin()} or ${T(com.nbu.CSCB634.global.AccessControlConfig).isDirector()}">
+                        <a th:href="@{/schools/{id}/edit(id=${school.id})}" class="btn btn-outline-warning">
+                            <i class="fas fa-edit"></i> Редактирай
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Информация за училището -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="mb-0">
+                            <i class="fas fa-school"></i> 
+                            <span th:text="${school.name}"></span>
+                        </h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <table class="table table-bordered">
+                                    <tr>
+                                        <th class="bg-light" style="width: 30%;">ID:</th>
+                                        <td th:text="${school.id}"></td>
+                                    </tr>
+                                    <tr>
+                                        <th class="bg-light">Име:</th>
+                                        <td th:text="${school.name}"></td>
+                                    </tr>
+                                    <tr>
+                                        <th class="bg-light">Адрес:</th>
+                                        <td th:text="${school.address}"></td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <div class="col-md-6">
+                                <!-- Допълнителна информация може да бъде добавена тук -->
+                                <div class="card bg-light">
+                                    <div class="card-header">
+                                        <h6 class="mb-0">Статистики</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <p class="text-muted">
+                                            <small>
+                                                <i class="fas fa-info-circle"></i>
+                                                Статистики за ученици, учители и класове ще бъдат показани тук в бъдеще.
+                                            </small>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Секция за свързани данни -->
+                <div class="row mt-4">
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <h6 class="mb-0">
+                                    <i class="fas fa-users"></i> Ученици
+                                </h6>
+                            </div>
+                            <div class="card-body text-center">
+                                <p class="text-muted">Списък с ученици в това училище</p>
+                                <a href="#" class="btn btn-outline-primary btn-sm disabled">
+                                    <i class="fas fa-list"></i> Виж всички
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <h6 class="mb-0">
+                                    <i class="fas fa-chalkboard-teacher"></i> Учители
+                                </h6>
+                            </div>
+                            <div class="card-body text-center">
+                                <p class="text-muted">Списък с учители в това училище</p>
+                                <a href="#" class="btn btn-outline-primary btn-sm disabled">
+                                    <i class="fas fa-list"></i> Виж всички
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <h6 class="mb-0">
+                                    <i class="fas fa-door-open"></i> Класове
+                                </h6>
+                            </div>
+                            <div class="card-body text-center">
+                                <p class="text-muted">Списък с класове в това училище</p>
+                                <a href="#" class="btn btn-outline-primary btn-sm disabled">
+                                    <i class="fas fa-list"></i> Виж всички
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Действия -->
+                <div class="card mt-4" th:if="${T(com.nbu.CSCB634.global.AccessControlConfig).isAdmin()}">
+                    <div class="card-header bg-danger text-white">
+                        <h6 class="mb-0">
+                            <i class="fas fa-exclamation-triangle"></i> Опасна зона
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <p class="text-danger">
+                            <strong>Внимание:</strong> Изтриването на училището ще премахне всички свързани данни и не може да бъде отменено.
+                        </p>
+                        <button type="button" 
+                                class="btn btn-outline-danger" 
+                                onclick="confirmDelete()"
+                                th:data-school-id="${school.id}"
+                                th:data-school-name="${school.name}">
+                            <i class="fas fa-trash"></i> Изтрий училището
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal за потвърждение на изтриване -->
+    <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteModalLabel">Потвърждение за изтриване</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Сигурни ли сте, че искате да изтриете училището <strong th:text="${school.name}"></strong>?</p>
+                    <p class="text-danger">Това действие не може да бъде отменено.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отказ</button>
+                    <form th:action="@{/schools/{id}/delete(id=${school.id})}" method="post" style="display: inline;">
+                        <button type="submit" class="btn btn-danger">Изтрий</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div th:replace="~{footer :: footer}"></div>
+
+    <script>
+        function confirmDelete() {
+            const modal = new bootstrap.Modal(document.getElementById('deleteModal'));
+            modal.show();
+        }
+    </script>
+</body>
+</html> 

@@ -101,4 +101,12 @@ INSERT INTO academicterm_subjects (academic_term_id, subject_id) VALUES (2, 4) O
 INSERT INTO academicterm_teachers (academic_term_id, teacher_id) VALUES (1, 4) ON CONFLICT DO NOTHING;
 INSERT INTO academicterm_teachers (academic_term_id, teacher_id) VALUES (2, 5) ON CONFLICT DO NOTHING;
 
+-- Synchronize sequences with existing data
+-- This fixes the duplicate key error when creating new records
+SELECT setval('school_id_seq', COALESCE((SELECT MAX(id) FROM school), 1), true);
+SELECT setval('schoolclass_id_seq', COALESCE((SELECT MAX(id) FROM schoolclass), 1), true);
+SELECT setval('subject_id_seq', COALESCE((SELECT MAX(id) FROM subject), 1), true);
+SELECT setval('grade_center_users_id_seq', COALESCE((SELECT MAX(id) FROM grade_center_users), 1), true);
+SELECT setval('academicterm_id_seq', COALESCE((SELECT MAX(id) FROM academicterm), 1), true);
+
 commit;

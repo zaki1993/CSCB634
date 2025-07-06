@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="bg" xmlns:th="http://www.thymeleaf.org">
+<div th:insert="~{header :: head}"></div>
+<body>
+    <div th:replace="~{header :: header}"></div>
+
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-12">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h1>Ученици</h1>
+                    <div th:if="${T(com.nbu.CSCB634.global.AccessControlConfig).isAdmin()} or ${T(com.nbu.CSCB634.global.AccessControlConfig).isDirector()}">
+                        <a th:href="@{/students/new}" class="btn btn-primary">
+                            <i class="fas fa-plus"></i> Добави ученик
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Съобщения -->
+                <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+                    <span th:text="${successMessage}"></span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+
+                <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                    <span th:text="${errorMessage}"></span>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+
+                <!-- Таблица с ученици -->
+                <div class="card">
+                    <div class="card-header">
+                        <h5 class="mb-0">Списък с ученици</h5>
+                    </div>
+                    <div class="card-body">
+                        <div th:if="${students.isEmpty()}" class="text-center py-4">
+                            <p class="text-muted">Няма намерени ученици.</p>
+                            <div th:if="${T(com.nbu.CSCB634.global.AccessControlConfig).isAdmin()} or ${T(com.nbu.CSCB634.global.AccessControlConfig).isDirector()}">
+                                <a th:href="@{/students/new}" class="btn btn-primary">
+                                    Добави първия ученик
+                                </a>
+                            </div>
+                        </div>
+
+                        <div th:unless="${students.isEmpty()}" class="table-responsive">
+                            <table class="table table-striped table-hover">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Потребителско име</th>
+                                        <th>Име</th>
+                                        <th>Имейл</th>
+                                        <th>Училище</th>
+                                        <th>Клас</th>
+                                        <th class="text-center">Действия</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="student : ${students}">
+                                        <td th:text="${student.id}"></td>
+                                        <td th:text="${student.username}"></td>
+                                        <td th:text="${student.fullName}"></td>
+                                        <td th:text="${student.email}"></td>
+                                        <td th:text="${student.schoolName}"></td>
+                                        <td th:text="${student.schoolClassName != null ? student.schoolClassName : 'Не е зададен'}"></td>
+                                        <td class="text-center">
+                                            <div class="btn-group" role="group">
+                                                <a th:href="@{/students/{id}(id=${student.id})}" 
+                                                   class="btn btn-sm btn-outline-primary" title="Преглед">
+                                                    <i class="fas fa-eye"></i>
+                                                </a>
+                                                <div th:if="${T(com.nbu.CSCB634.global.AccessControlConfig).isAdmin()} or ${T(com.nbu.CSCB634.global.AccessControlConfig).isDirector()}">
+                                                    <a th:href="@{/students/{id}/edit(id=${student.id})}" 
+                                                       class="btn btn-sm btn-outline-warning" title="Редактиране">
+                                                        <i class="fas fa-edit"></i>
+                                                    </a>
+                                                </div>
+                                                <div th:if="${T(com.nbu.CSCB634.global.AccessControlConfig).isAdmin()}">
+                                                    <button type="button" 
+                                                            class="btn btn-sm btn-outline-danger" 
+                                                            title="Изтриване"
+                                                            onclick="confirmDelete(this)" 
+                                                            th:data-student-id="${student.id}"
+                                                            th:data-student-name="${student.fullName}">
+                                                        <i class="fas fa-trash"></i>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal за потвърждение на изтриване -->
+    <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteModalLabel">Потвърждение за изтриване</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Сигурни ли сте, че искате да изтриете ученика <strong id="studentName"></strong>?</p>
+                    <p class="text-danger">Това действие не може да бъде отменено и ще изтрие всички данни за ученика.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отказ</button>
+                    <form id="deleteForm" method="post" style="display: inline;">
+                        <button type="submit" class="btn btn-danger">Изтрий</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div th:replace="~{footer :: footer}"></div>
+
+    <script>
+        function confirmDelete(button) {
+            const studentId = button.dataset.studentId;
+            const studentName = button.dataset.studentName;
+            
+            document.getElementById('studentName').textContent = studentName;
+            document.getElementById('deleteForm').action = '/students/' + studentId + '/delete';
+            
+            const modal = new bootstrap.Modal(document.getElementById('deleteModal'));
+            modal.show();
+        }
+    </script>
+</body>
+</html> 

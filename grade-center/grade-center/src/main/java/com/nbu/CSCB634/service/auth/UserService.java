@@ -52,4 +52,23 @@ public class UserService {
         user.setRole(role);
         userRepository.save(user);
     }
+
+    public User save(User user) {
+        return userRepository.save(user);
+    }
+
+    public Long getNextAvailableId() {
+        // Намери следващото свободно ID
+        List<User> users = userRepository.findAll();
+        if (users.isEmpty()) {
+            return 1L;
+        }
+        
+        Long maxId = users.stream()
+                .mapToLong(User::getId)
+                .max()
+                .orElse(0L);
+        
+        return maxId + 1;
+    }
 }

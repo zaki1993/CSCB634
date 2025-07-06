@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="bg" xmlns:th="http://www.thymeleaf.org">
+<div th:insert="~{header :: head}"></div>
+<body>
+    <div th:replace="~{header :: header}"></div>
+
+    <div class="container mt-4">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header">
+                        <h4 class="mb-0">
+                            <span th:if="${isEdit}">Редактиране на учител</span>
+                            <span th:unless="${isEdit}">Добавяне на нов учител</span>
+                        </h4>
+                    </div>
+                    <div class="card-body">
+                        <!-- Съобщения за грешки -->
+                        <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <span th:text="${errorMessage}"></span>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+
+                        <!-- Форма -->
+                        <form th:action="${isEdit} ? '/teachers/' + ${teacher.id} + '/edit' : '/teachers/new'" 
+                              th:object="${teacher}" 
+                              method="post" 
+                              novalidate>
+                            
+                            <div class="row">
+                                <!-- Лични данни -->
+                                <div class="col-md-6">
+                                    <h6 class="text-primary mb-3">Лични данни</h6>
+                                    
+                                    <!-- Потребителско име -->
+                                    <div class="mb-3">
+                                        <label for="username" class="form-label">Потребителско име <span class="text-danger">*</span></label>
+                                        <input type="text" 
+                                               class="form-control" 
+                                               id="username" 
+                                               name="username"
+                                               th:field="*{username}"
+                                               th:classappend="${#fields.hasErrors('username')} ? 'is-invalid' : ''"
+                                               placeholder="Въведете потребителско име"
+                                               required>
+                                        <div th:if="${#fields.hasErrors('username')}" class="invalid-feedback">
+                                            <span th:each="error : ${#fields.errors('username')}" th:text="${error}"></span>
+                                        </div>
+                                    </div>
+
+                                    <!-- Първо име -->
+                                    <div class="mb-3">
+                                        <label for="firstName" class="form-label">Първо име <span class="text-danger">*</span></label>
+                                        <input type="text" 
+                                               class="form-control" 
+                                               id="firstName" 
+                                               name="firstName"
+                                               th:field="*{firstName}"
+                                               th:classappend="${#fields.hasErrors('firstName')} ? 'is-invalid' : ''"
+                                               placeholder="Въведете първо име"
+                                               required>
+                                        <div th:if="${#fields.hasErrors('firstName')}" class="invalid-feedback">
+                                            <span th:each="error : ${#fields.errors('firstName')}" th:text="${error}"></span>
+                                        </div>
+                                    </div>
+
+                                    <!-- Фамилия -->
+                                    <div class="mb-3">
+                                        <label for="lastName" class="form-label">Фамилия <span class="text-danger">*</span></label>
+                                        <input type="text" 
+                                               class="form-control" 
+                                               id="lastName" 
+                                               name="lastName"
+                                               th:field="*{lastName}"
+                                               th:classappend="${#fields.hasErrors('lastName')} ? 'is-invalid' : ''"
+                                               placeholder="Въведете фамилия"
+                                               required>
+                                        <div th:if="${#fields.hasErrors('lastName')}" class="invalid-feedback">
+                                            <span th:each="error : ${#fields.errors('lastName')}" th:text="${error}"></span>
+                                        </div>
+                                    </div>
+
+                                    <!-- Имейл -->
+                                    <div class="mb-3">
+                                        <label for="email" class="form-label">Имейл <span class="text-danger">*</span></label>
+                                        <input type="email" 
+                                               class="form-control" 
+                                               id="email" 
+                                               name="email"
+                                               th:field="*{email}"
+                                               th:classappend="${#fields.hasErrors('email')} ? 'is-invalid' : ''"
+                                               placeholder="Въведете имейл адрес"
+                                               required>
+                                        <div th:if="${#fields.hasErrors('email')}" class="invalid-feedback">
+                                            <span th:each="error : ${#fields.errors('email')}" th:text="${error}"></span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Професионални данни -->
+                                <div class="col-md-6">
+                                    <h6 class="text-primary mb-3">Професионални данни</h6>
+                                    
+                                    <!-- Училище -->
+                                    <div class="mb-3">
+                                        <label for="schoolId" class="form-label">Училище <span class="text-danger">*</span></label>
+                                        <select class="form-select" 
+                                                id="schoolId" 
+                                                name="schoolId"
+                                                th:field="*{schoolId}"
+                                                th:classappend="${#fields.hasErrors('schoolId')} ? 'is-invalid' : ''"
+                                                required>
+                                            <option value="">Изберете училище</option>
+                                            <option th:each="school : ${schools}" 
+                                                    th:value="${school.id}" 
+                                                    th:text="${school.name}"
+                                                    th:selected="${school.id == teacher.schoolId}">
+                                            </option>
+                                        </select>
+                                        <div th:if="${#fields.hasErrors('schoolId')}" class="invalid-feedback">
+                                            <span th:each="error : ${#fields.errors('schoolId')}" th:text="${error}"></span>
+                                        </div>
+                                    </div>
+
+                                    <!-- Квалифицирани предмети -->
+                                    <div class="mb-3">
+                                        <label for="qualifiedSubjectIds" class="form-label">Квалификации (предмети)</label>
+                                        <select class="form-select" 
+                                                id="qualifiedSubjectIds" 
+                                                name="qualifiedSubjectIds"
+                                                multiple
+                                                size="6">
+                                            <option th:each="subject : ${subjects}" 
+                                                    th:value="${subject.id}" 
+                                                    th:text="${subject.name}"
+                                                    th:selected="${teacher.qualifiedSubjectIds != null and teacher.qualifiedSubjectIds.contains(subject.id)}">
+                                            </option>
+                                        </select>
+                                        <div class="form-text">Задръжте Ctrl/Cmd за избор на множество предмети</div>
+                                    </div>
+
+                                    <!-- Информация за паролата -->
+                                    <div th:unless="${isEdit}" class="alert alert-info">
+                                        <h6><i class="fas fa-info-circle"></i> Информация за паролата</h6>
+                                        <p class="mb-0 small">Временната парола за новия учител е: <strong>teacher123</strong></p>
+                                        <p class="mb-0 small">Препоръчваме да я смените при първо влизане.</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Бутони -->
+                            <div class="d-flex justify-content-between mt-4">
+                                <a th:href="@{/teachers}" class="btn btn-secondary">
+                                    <i class="fas fa-arrow-left"></i> Назад
+                                </a>
+                                <button type="submit" class="btn btn-primary">
+                                    <i th:class="${isEdit} ? 'fas fa-save' : 'fas fa-plus'"></i>
+                                    <span th:if="${isEdit}">Запази промените</span>
+                                    <span th:unless="${isEdit}">Създай учител</span>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Помощна информация -->
+                <div class="card mt-4">
+                    <div class="card-header">
+                        <h6 class="mb-0">Помощна информация</h6>
+                    </div>
+                    <div class="card-body">
+                        <ul class="mb-0">
+                            <li>Полетата с <span class="text-danger">*</span> са задължителни</li>
+                            <li>Потребителското име трябва да бъде уникално</li>
+                            <li>Квалификациите определят кои предмети може да преподава учителят</li>
+                            <li>Временната парола е "teacher123"</li>
+                            <li>Данните могат да бъдат редактирани по-късно</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div th:replace="~{footer :: footer}"></div>
+
+    <script>
+        // Подобряване на multi-select за предмети
+        document.addEventListener('DOMContentLoaded', function() {
+            const subjectSelect = document.getElementById('qualifiedSubjectIds');
+            
+            // Добавяне на placeholder когато няма избрани опции
+            if (subjectSelect.selectedOptions.length === 0) {
+                const placeholder = document.createElement('option');
+                placeholder.text = 'Изберете предмети (опционално)';
+                placeholder.disabled = true;
+                placeholder.selected = true;
+                subjectSelect.add(placeholder, 0);
+            }
+            
+            // Премахване на placeholder при избор
+            subjectSelect.addEventListener('change', function() {
+                const placeholder = subjectSelect.querySelector('option[disabled]');
+                if (placeholder && this.selectedOptions.length > 0) {
+                    placeholder.remove();
+                }
+            });
+        });
+    </script>
+</body>
+</html> 

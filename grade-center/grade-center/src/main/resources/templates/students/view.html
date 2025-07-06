@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="bg" xmlns:th="http://www.thymeleaf.org">
+<div th:insert="~{header :: head}"></div>
+<body>
+    <div th:replace="~{header :: header}"></div>
+
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-12">
+                <!-- Навигационни бутони -->
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <a th:href="@{/students}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left"></i> Назад към списъка
+                    </a>
+                    <div th:if="${T(com.nbu.CSCB634.global.AccessControlConfig).isAdmin()} or ${T(com.nbu.CSCB634.global.AccessControlConfig).isDirector()}">
+                        <a th:href="@{/students/{id}/edit(id=${student.id})}" class="btn btn-outline-warning">
+                            <i class="fas fa-edit"></i> Редактирай
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Информация за ученика -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="mb-0">
+                            <i class="fas fa-graduation-cap"></i> 
+                            <span th:text="${student.fullName}"></span>
+                        </h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h5 class="text-primary mb-3">Лични данни</h5>
+                                <table class="table table-bordered">
+                                    <tr>
+                                        <th class="bg-light" style="width: 30%;">ID:</th>
+                                        <td th:text="${student.id}"></td>
+                                    </tr>
+                                    <tr>
+                                        <th class="bg-light">Потребителско име:</th>
+                                        <td th:text="${student.username}"></td>
+                                    </tr>
+                                    <tr>
+                                        <th class="bg-light">Първо име:</th>
+                                        <td th:text="${student.firstName}"></td>
+                                    </tr>
+                                    <tr>
+                                        <th class="bg-light">Фамилия:</th>
+                                        <td th:text="${student.lastName}"></td>
+                                    </tr>
+                                    <tr>
+                                        <th class="bg-light">Имейл:</th>
+                                        <td th:text="${student.email}"></td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <div class="col-md-6">
+                                <h5 class="text-primary mb-3">Училищни данни</h5>
+                                <table class="table table-bordered">
+                                    <tr>
+                                        <th class="bg-light" style="width: 30%;">Училище:</th>
+                                        <td th:text="${student.schoolName}"></td>
+                                    </tr>
+                                    <tr>
+                                        <th class="bg-light">Клас:</th>
+                                        <td th:text="${student.schoolClassName != null ? student.schoolClassName : 'Не е зададен'}"></td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Секция за свързани данни -->
+                <div class="row mt-4">
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <h6 class="mb-0">
+                                    <i class="fas fa-star"></i> Оценки
+                                </h6>
+                            </div>
+                            <div class="card-body text-center">
+                                <p class="text-muted">Оценки на ученика</p>
+                                <a href="#" class="btn btn-outline-primary btn-sm disabled">
+                                    <i class="fas fa-list"></i> Виж всички
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <h6 class="mb-0">
+                                    <i class="fas fa-calendar-times"></i> Отсъствия
+                                </h6>
+                            </div>
+                            <div class="card-body text-center">
+                                <p class="text-muted">Отсъствия на ученика</p>
+                                <a href="#" class="btn btn-outline-primary btn-sm disabled">
+                                    <i class="fas fa-list"></i> Виж всички
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <h6 class="mb-0">
+                                    <i class="fas fa-users"></i> Родители
+                                </h6>
+                            </div>
+                            <div class="card-body text-center">
+                                <p class="text-muted">Родители на ученика</p>
+                                <a href="#" class="btn btn-outline-primary btn-sm disabled">
+                                    <i class="fas fa-list"></i> Виж всички
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Статистики -->
+                <div class="row mt-4">
+                    <div class="col-md-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h6 class="mb-0">
+                                    <i class="fas fa-chart-line"></i> Статистики
+                                </h6>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-3">
+                                        <div class="text-center">
+                                            <h4 class="text-primary">--</h4>
+                                            <p class="text-muted">Средна оценка</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="text-center">
+                                            <h4 class="text-success">--</h4>
+                                            <p class="text-muted">Общо оценки</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="text-center">
+                                            <h4 class="text-warning">--</h4>
+                                            <p class="text-muted">Отсъствия</p>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-3">
+                                        <div class="text-center">
+                                            <h4 class="text-info">--</h4>
+                                            <p class="text-muted">Предмети</p>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="text-center mt-3">
+                                    <small class="text-muted">
+                                        <i class="fas fa-info-circle"></i>
+                                        Статистиките ще бъдат показани при добавяне на оценки и отсъствия.
+                                    </small>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Действия -->
+                <div class="card mt-4" th:if="${T(com.nbu.CSCB634.global.AccessControlConfig).isAdmin()}">
+                    <div class="card-header bg-danger text-white">
+                        <h6 class="mb-0">
+                            <i class="fas fa-exclamation-triangle"></i> Опасна зона
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <p class="text-danger">
+                            <strong>Внимание:</strong> Изтриването на ученика ще премахне всички свързани данни (оценки, отсъствия) и не може да бъде отменено.
+                        </p>
+                        <button type="button" 
+                                class="btn btn-outline-danger" 
+                                onclick="confirmDelete()"
+                                th:data-student-id="${student.id}"
+                                th:data-student-name="${student.fullName}">
+                            <i class="fas fa-trash"></i> Изтрий ученика
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal за потвърждение на изтриване -->
+    <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteModalLabel">Потвърждение за изтриване</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Сигурни ли сте, че искате да изтриете ученика <strong th:text="${student.fullName}"></strong>?</p>
+                    <p class="text-danger">Това действие не може да бъде отменено и ще изтрие всички данни за ученика.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отказ</button>
+                    <form th:action="@{/students/{id}/delete(id=${student.id})}" method="post" style="display: inline;">
+                        <button type="submit" class="btn btn-danger">Изтрий</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div th:replace="~{footer :: footer}"></div>
+
+    <script>
+        function confirmDelete() {
+            const modal = new bootstrap.Modal(document.getElementById('deleteModal'));
+            modal.show();
+        }
+    </script>
+</body>
+</html> 

@@ -49,4 +49,13 @@ public class DirectorService {
                 .orElseThrow(() -> new IllegalArgumentException("Director not found"));
         directorRepository.delete(director);
     }
+
+    public Long getNextAvailableId() {
+        List<Director> allDirectors = directorRepository.findAll();
+        Long maxId = allDirectors.stream()
+                .mapToLong(Director::getId)
+                .max()
+                .orElse(0L);
+        return maxId + 1;
+    }
 }

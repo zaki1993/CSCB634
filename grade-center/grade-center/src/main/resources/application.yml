@@ -8,9 +8,6 @@ logging:
     root: ${LOGGING_LEVEL:TRACE}
 
 spring:
-  sql:
-    init:
-      mode: always
   liquibase:
     enabled: false
   thymeleaf:

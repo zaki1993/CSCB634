@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="bg" xmlns:th="http://www.thymeleaf.org">
+<div th:insert="~{header :: head}"></div>
+<body>
+    <div th:replace="~{header :: header}"></div>
+
+    <div class="container mt-4">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header">
+                        <h4 class="mb-0">
+                            <span th:if="${isEdit}">Редактиране на училище</span>
+                            <span th:unless="${isEdit}">Добавяне на ново училище</span>
+                        </h4>
+                    </div>
+                    <div class="card-body">
+                        <!-- Съобщения за грешки -->
+                        <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <span th:text="${errorMessage}"></span>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+
+                        <!-- Форма -->
+                        <form th:action="${isEdit} ? '/schools/' + ${school.id} + '/edit' : '/schools/new'" 
+                              th:object="${school}" 
+                              method="post" 
+                              novalidate>
+                            
+                            <!-- Име на училището -->
+                            <div class="mb-3">
+                                <label for="name" class="form-label">Име на училището <span class="text-danger">*</span></label>
+                                <input type="text" 
+                                       class="form-control" 
+                                       id="name" 
+                                       name="name"
+                                       th:field="*{name}"
+                                       th:classappend="${#fields.hasErrors('name')} ? 'is-invalid' : ''"
+                                       placeholder="Въведете името на училището"
+                                       required 
+                                       maxlength="255">
+                                <div th:if="${#fields.hasErrors('name')}" class="invalid-feedback">
+                                    <span th:each="error : ${#fields.errors('name')}" th:text="${error}"></span>
+                                </div>
+                                <div class="form-text">Максимум 255 символа</div>
+                            </div>
+
+                            <!-- Адрес -->
+                            <div class="mb-3">
+                                <label for="address" class="form-label">Адрес <span class="text-danger">*</span></label>
+                                <textarea class="form-control" 
+                                          id="address" 
+                                          name="address"
+                                          th:field="*{address}"
+                                          th:classappend="${#fields.hasErrors('address')} ? 'is-invalid' : ''"
+                                          placeholder="Въведете адреса на училището"
+                                          rows="3"
+                                          required 
+                                          maxlength="500"></textarea>
+                                <div th:if="${#fields.hasErrors('address')}" class="invalid-feedback">
+                                    <span th:each="error : ${#fields.errors('address')}" th:text="${error}"></span>
+                                </div>
+                                <div class="form-text">Максимум 500 символа</div>
+                            </div>
+
+                            <!-- Бутони -->
+                            <div class="d-flex justify-content-between">
+                                <a th:href="@{/schools}" class="btn btn-secondary">
+                                    <i class="fas fa-arrow-left"></i> Назад
+                                </a>
+                                <button type="submit" class="btn btn-primary">
+                                    <i th:class="${isEdit} ? 'fas fa-save' : 'fas fa-plus'"></i>
+                                    <span th:if="${isEdit}">Запази промените</span>
+                                    <span th:unless="${isEdit}">Създай училище</span>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Помощна информация -->
+                <div class="card mt-4">
+                    <div class="card-header">
+                        <h6 class="mb-0">Помощна информация</h6>
+                    </div>
+                    <div class="card-body">
+                        <ul class="mb-0">
+                            <li>Полетата с <span class="text-danger">*</span> са задължителни</li>
+                            <li>Името на училището трябва да бъде уникално</li>
+                            <li>Адресът трябва да бъде пълен и точен</li>
+                            <li>Данните могат да бъдат редактирани по-късно</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div th:replace="~{footer :: footer}"></div>
+
+    <script>
+        // Валидация на формата
+        (function() {
+            'use strict';
+            window.addEventListener('load', function() {
+                const forms = document.getElementsByClassName('needs-validation');
+                Array.prototype.filter.call(forms, function(form) {
+                    form.addEventListener('submit', function(event) {
+                        if (form.checkValidity() === false) {
+                            event.preventDefault();
+                            event.stopPropagation();
+                        }
+                        form.classList.add('was-validated');
+                    }, false);
+                });
+            }, false);
+        })();
+    </script>
+</body>
+</html> 

@@ -49,4 +49,13 @@ public class ParentService {
                 .orElseThrow(() -> new IllegalArgumentException("Parent not found"));
         parentRepository.delete(parent);
     }
+
+    public Long getNextAvailableId() {
+        List<Parent> allParents = parentRepository.findAll();
+        Long maxId = allParents.stream()
+                .mapToLong(Parent::getId)
+                .max()
+                .orElse(0L);
+        return maxId + 1;
+    }
 }

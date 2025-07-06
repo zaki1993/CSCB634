@@ -4,7 +4,9 @@ import com.nbu.CSCB634.model.SchoolClass;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
+
 @Repository
 public interface SchoolClassRepository extends JpaRepository<SchoolClass, Long> {
-    // Additional query methods if needed, e.g. find by name
+    List<SchoolClass> findBySchoolId(Long schoolId);
 }

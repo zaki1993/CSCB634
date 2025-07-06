@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 
 @Service
@@ -18,13 +19,29 @@ public class SubjectService {
         return subjectRepository.findAll();
     }
 
-    public void deleteSubject(Long id) {
-        Subject subject = subjectRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Subject not found"));
-        subjectRepository.delete(subject);
+    public List<Subject> getAllSubjects() {
+        return subjectRepository.findAll();
+    }
+
+    public Optional<Subject> getSubjectById(Long id) {
+        return subjectRepository.findById(id);
     }
 
     public Subject createSubject(Subject subject) {
         return subjectRepository.save(subject);
+    }
+
+    public Subject updateSubject(Long id, Subject subjectDetails) {
+        return subjectRepository.findById(id)
+                .map(subject -> {
+                    subject.setName(subjectDetails.getName());
+                    return subjectRepository.save(subject);
+                }).orElseThrow(() -> new IllegalArgumentException("Subject not found"));
+    }
+
+    public void deleteSubject(Long id) {
+        Subject subject = subjectRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Subject not found"));
+        subjectRepository.delete(subject);
     }
 }

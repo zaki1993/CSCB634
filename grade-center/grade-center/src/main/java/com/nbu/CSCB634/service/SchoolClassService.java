@@ -46,4 +46,8 @@ public class SchoolClassService {
     public List<SchoolClass> getAll() {
         return schoolClassRepository.findAll();
     }
+
+    public List<SchoolClass> getSchoolClassesBySchool(Long schoolId) {
+        return schoolClassRepository.findBySchoolId(schoolId);
+    }
 }
