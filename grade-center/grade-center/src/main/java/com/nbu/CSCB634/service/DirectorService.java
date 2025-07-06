@@ -35,8 +35,8 @@ public class DirectorService {
     public Director updateDirector(Long id, @Valid Director updatedDirector) {
         return directorRepository.findById(id)
                 .map(director -> {
-                    director.setFirstName(updatedDirector.getFirstName());
-                    director.setLastName(updatedDirector.getLastName());
+                    director.getUser().setFirstName(updatedDirector.getUser().getFirstName());
+                    director.getUser().setLastName(updatedDirector.getUser().getLastName());
                     director.setSchool(updatedDirector.getSchool());
                     return directorRepository.save(director);
                 })

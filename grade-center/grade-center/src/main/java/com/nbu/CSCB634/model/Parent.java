@@ -3,9 +3,9 @@ package com.nbu.CSCB634.model;
 import com.nbu.CSCB634.model.auth.User;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.experimental.SuperBuilder;
 
 import java.util.Set;
 
@@ -13,11 +13,16 @@ import java.util.Set;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@SuperBuilder
-public class Parent extends User {
-    @ManyToOne
-    @JoinColumn(name = "school_id", nullable = false)
-    private School school;
+@Builder
+@Table(name = "parents")
+public class Parent {
+    @Id
+    private Long id;  // Same as User.id
+
+    @OneToOne
+    @MapsId
+    @JoinColumn(name = "id")
+    private User user;
 
     @ManyToMany
     @JoinTable(

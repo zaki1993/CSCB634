@@ -1,11 +1,9 @@
 package com.nbu.CSCB634.model;
 
 import com.nbu.CSCB634.model.auth.User;
-import jakarta.persistence.Entity;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToMany;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
@@ -16,8 +14,16 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@SuperBuilder
-public class Student extends User {
+@Builder
+@Table(name = "students")
+public class Student {
+    @Id
+    private Long id;  // Same as User.id
+
+    @OneToOne
+    @MapsId
+    @JoinColumn(name = "id")
+    private User user;
 
     @ManyToOne
     @JoinColumn(name = "school_id", nullable = false)

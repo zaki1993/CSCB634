@@ -35,8 +35,8 @@ public class ParentService {
     public Parent updateParent(Long id, @Valid Parent updatedParent) {
         return parentRepository.findById(id)
                 .map(parent -> {
-                    parent.setFirstName(updatedParent.getFirstName());
-                    parent.setLastName(updatedParent.getLastName());
+                    parent.getUser().setFirstName(updatedParent.getUser().getFirstName());
+                    parent.getUser().setLastName(updatedParent.getUser().getLastName());
                     parent.setStudents(updatedParent.getStudents());
                     return parentRepository.save(parent);
                 })

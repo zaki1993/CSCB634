@@ -12,8 +12,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-@Table(name = "directors")
-public class Director {
+@Table(name = "administrators")
+public class Administrator {
     @Id
     private Long id;  // Same as User.id
 
@@ -21,10 +21,4 @@ public class Director {
     @MapsId
     @JoinColumn(name = "id")
     private User user;
-
-    @ManyToOne
-    @JoinColumn(name = "school_id", nullable = false)
-    private School school;
-
-    // You can add director-specific fields here
 }

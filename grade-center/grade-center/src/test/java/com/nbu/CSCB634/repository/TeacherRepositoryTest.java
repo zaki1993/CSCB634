@@ -1,6 +1,7 @@
 package com.nbu.CSCB634.repository;
 
 import com.nbu.CSCB634.model.Teacher;
+import com.nbu.CSCB634.model.auth.User;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,9 +20,12 @@ class TeacherRepositoryTest {
     @Test
     @DisplayName("Save teacher and find by ID")
     void testSaveAndFindById() {
-        Teacher teacher = Teacher.builder()
+        User u = User.builder()
                 .firstName("Bob")
                 .lastName("Builder")
+                .build();
+        Teacher teacher = Teacher.builder()
+                .user(u)
                 .build();
 
         Teacher saved = teacherRepository.save(teacher);
@@ -29,14 +33,22 @@ class TeacherRepositoryTest {
 
         Optional<Teacher> found = teacherRepository.findById(saved.getId());
         assertThat(found).isPresent();
-        assertThat(found.get().getFirstName()).isEqualTo("Bob");
+        assertThat(found.get().getUser().getFirstName()).isEqualTo("Bob");
     }
 
     @Test
     @DisplayName("Find all teachers")
     void testFindAll() {
-        Teacher t1 = Teacher.builder().firstName("Ann").lastName("Smith").build();
-        Teacher t2 = Teacher.builder().firstName("Joe").lastName("Black").build();
+        User u1 = User.builder()
+                .firstName("Bob")
+                .lastName("Builder")
+                .build();
+        User u2 = User.builder()
+                .firstName("Bob")
+                .lastName("Builder")
+                .build();
+        Teacher t1 = Teacher.builder().user(u1).build();
+        Teacher t2 = Teacher.builder().user(u2).build();
         teacherRepository.saveAll(List.of(t1, t2));
 
         List<Teacher> teachers = teacherRepository.findAll();
@@ -46,7 +58,11 @@ class TeacherRepositoryTest {
     @Test
     @DisplayName("Delete teacher")
     void testDelete() {
-        Teacher teacher = Teacher.builder().firstName("Delete").lastName("Me").build();
+        User u = User.builder()
+                .firstName("Bob")
+                .lastName("Builder")
+                .build();
+        Teacher teacher = Teacher.builder().user(u).build();
         teacher = teacherRepository.save(teacher);
         Long id = teacher.getId();
 

@@ -35,8 +35,8 @@ public class TeacherService {
     public Teacher updateTeacher(Long id, @Valid Teacher updatedTeacher) {
         return teacherRepository.findById(id)
                 .map(teacher -> {
-                    teacher.setFirstName(updatedTeacher.getFirstName());
-                    teacher.setLastName(updatedTeacher.getLastName());
+                    teacher.getUser().setFirstName(updatedTeacher.getUser().getFirstName());
+                    teacher.getUser().setLastName(updatedTeacher.getUser().getLastName());
                     teacher.setQualifiedSubjects(updatedTeacher.getQualifiedSubjects());
                     teacher.setSchool(updatedTeacher.getSchool());
                     return teacherRepository.save(teacher);
