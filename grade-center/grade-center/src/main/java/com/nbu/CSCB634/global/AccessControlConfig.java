@@ -10,6 +10,14 @@ import java.util.Collection;
  */
 public class AccessControlConfig {
     /**
+     * Return if the current user is admin
+     * @return
+     */
+    public static boolean isAdmin() {
+        return hasRole("ADMINISTRATOR");
+    }
+
+    /**
      * Return if the current user is teacher
      * @return
      */

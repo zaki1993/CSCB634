@@ -26,7 +26,7 @@ public class RegisterController {
     @GetMapping("/register")
     public String showRegisterForm(Model model) {
         model.addAttribute("user", new User());
-        return "register";  // This refers to register.html in your templates
+        return "register";
     }
 
     @PostMapping("/register")

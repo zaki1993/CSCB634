@@ -18,7 +18,9 @@
 
             <div class="collapse navbar-collapse" id="navbarContent">
                 <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
-
+                    <li class="nav-item" th:if="${T(com.nbu.CSCB634.global.AccessControlConfig).isAdmin()}">
+                        <a class="nav-link"  href="/admin/users">Admin Panel</a>
+                    </li>
                     <li class="nav-item">
                         <a class="nav-link" href="/schools">Училища</a>
                     </li>

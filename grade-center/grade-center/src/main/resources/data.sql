@@ -100,3 +100,5 @@ INSERT INTO academicterm_subjects (academic_term_id, subject_id) VALUES (2, 4) O
 -- Academic Term Teachers
 INSERT INTO academicterm_teachers (academic_term_id, teacher_id) VALUES (1, 4) ON CONFLICT DO NOTHING;
 INSERT INTO academicterm_teachers (academic_term_id, teacher_id) VALUES (2, 5) ON CONFLICT DO NOTHING;
+
+commit;

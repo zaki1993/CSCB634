@@ -23,6 +23,7 @@ public class WebSecurityConfig {
         http.csrf(c -> c.disable())
                 .authorizeHttpRequests(authorize ->
                         authorize.requestMatchers("/login", "/register", "/css/**", "/js/**").permitAll()
+                                .requestMatchers("/admin/**").hasAnyAuthority("ADMINISTRATOR")
                                 .anyRequest().authenticated()
                 )
                 .httpBasic(Customizer.withDefaults())
