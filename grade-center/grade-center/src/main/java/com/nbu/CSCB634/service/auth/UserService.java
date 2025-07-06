@@ -3,6 +3,7 @@ package com.nbu.CSCB634.service.auth;
 import com.nbu.CSCB634.model.Role;
 import com.nbu.CSCB634.model.auth.User;
 import com.nbu.CSCB634.repository.auth.UserRepository;
+import com.nbu.CSCB634.service.exceptions.UserAlreadyExistException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -19,17 +20,17 @@ public class UserService {
 
     public User registerUser(@Valid User user) {
         if (userRepository.existsByUsername(user.getUsername())) {
-            throw new IllegalArgumentException("Username already taken");
+            throw new UserAlreadyExistException("Username already taken");
         }
         if (userRepository.existsByEmail(user.getEmail())) {
-            throw new IllegalArgumentException("Email already in use");
+            throw new UserAlreadyExistException("Email already in use");
         }
 
         user.setPassword(passwordEncoder.encode(user.getPassword()));
 
         // Assign default role STUDENT for example or depending on registration type
         if (user.getRole() == null) {
-            user.setRole(Role.STUDENT);
+            user.setRole(Role.NONE);
         }
 
         return userRepository.save(user);

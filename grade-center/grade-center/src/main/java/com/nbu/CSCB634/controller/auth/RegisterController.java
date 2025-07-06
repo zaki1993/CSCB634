@@ -2,7 +2,8 @@ package com.nbu.CSCB634.controller.auth;
 
 import com.nbu.CSCB634.model.Role;
 import com.nbu.CSCB634.model.auth.User;
-import com.nbu.CSCB634.repository.auth.UserRepository;
+import com.nbu.CSCB634.service.auth.UserService;
+import com.nbu.CSCB634.service.exceptions.UserAlreadyExistException;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -17,7 +18,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 public class RegisterController {
 
     @Autowired
-    private UserRepository userRepository;
+    private UserService userService;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
@@ -37,30 +38,17 @@ public class RegisterController {
             return "register";
         }
 
-        if (userRepository.existsByUsername(user.getUsername())) {
-            model.addAttribute("error", "Username is already taken.");
-            return "register";
-        }
-
-        if (userRepository.existsByEmail(user.getEmail())) {
-            model.addAttribute("error", "Email is already taken.");
-            return "register";
-        }
-
         if (!user.getPassword().equals(confirmPassword)) {
             model.addAttribute("error", "Passwords do not match");
             return "register";
         }
 
-        // Encode the password
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
-
-        // Set default role
-        if (user.getRole() == null) {
-            user.setRole(Role.NONE);
+        try {
+            userService.registerUser(user);
+        } catch (UserAlreadyExistException e) {
+            model.addAttribute("error", e.getMessage());
+            return "register";
         }
-
-        userRepository.save(user);
 
         // Redirect to login page after successful registration
         return "redirect:/login";
