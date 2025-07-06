@@ -2,14 +2,12 @@ package com.nbu.CSCB634.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.nbu.CSCB634.model.Teacher;
+import com.nbu.CSCB634.model.auth.User;
 import com.nbu.CSCB634.service.TeacherService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -18,7 +16,6 @@ import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
-
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -36,10 +33,13 @@ class TeacherControllerTest {
 
     @BeforeEach
     void setup() {
-        teacher = Teacher.builder()
-                .id(1L)
+        User u = User.builder()
                 .firstName("Robert")
                 .lastName("Langdon")
+                .build();
+        teacher = Teacher.builder()
+                .id(1L)
+                .user(u)
                 .build();
     }
 
@@ -63,7 +63,10 @@ class TeacherControllerTest {
 
     @Test
     void testGetAllTeachers() throws Exception {
-        Teacher t2 = Teacher.builder().id(2L).firstName("Leonardo").lastName("Da Vinci").build();
+        User u = User.builder()
+                .firstName("Leonardo").lastName("Da Vinci")
+                .build();
+        Teacher t2 = Teacher.builder().id(2L).user(u).build();
 
         when(teacherService.getAllTeachers()).thenReturn(List.of(teacher, t2));
 
@@ -85,10 +88,13 @@ class TeacherControllerTest {
 
     @Test
     void testUpdateTeacher_Found() throws Exception {
-        Teacher updated = Teacher.builder()
-                .id(1L)
+        User u = User.builder()
                 .firstName("Robert Updated")
                 .lastName("Langdon Updated")
+                .build();
+        Teacher updated = Teacher.builder()
+                .id(1L)
+                .user(u)
                 .build();
 
         when(teacherService.updateTeacher(eq(1L), any(Teacher.class))).thenReturn(updated);

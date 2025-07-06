@@ -1,4 +1,4 @@
-package com.nbu.CSCB634.controller.login;
+package com.nbu.CSCB634.controller.auth;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;

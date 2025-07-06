@@ -1,5 +1,6 @@
 package com.nbu.CSCB634.model;
 
+import com.nbu.CSCB634.model.auth.User;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -13,7 +14,8 @@ class GradeModelTest {
 
     @Test
     void testBuilderAndGetters() {
-        Student student = Student.builder().id(100L).firstName("Stu").lastName("Dent").build();
+        User u = User.builder().firstName("Stu").lastName("Dent").build();
+        Student student = Student.builder().id(100L).user(u).build();
         Subject subject = Subject.builder().id(10L).name("Math").build();
 
         Grade grade = Grade.builder()

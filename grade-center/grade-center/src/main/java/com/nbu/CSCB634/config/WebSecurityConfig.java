@@ -22,7 +22,7 @@ public class WebSecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(c -> c.disable())
                 .authorizeHttpRequests(authorize ->
-                        authorize.requestMatchers("/login", "/css/**", "/js/**").permitAll()
+                        authorize.requestMatchers("/login", "/register", "/css/**", "/js/**").permitAll()
                                 .anyRequest().authenticated()
                 )
                 .httpBasic(Customizer.withDefaults())

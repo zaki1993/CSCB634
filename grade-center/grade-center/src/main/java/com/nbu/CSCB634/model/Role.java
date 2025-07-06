@@ -5,5 +5,6 @@ public enum Role {
     DIRECTOR,
     TEACHER,
     PARENT,
-    STUDENT
+    STUDENT,
+    NONE // This role is set when the user is registered
 }

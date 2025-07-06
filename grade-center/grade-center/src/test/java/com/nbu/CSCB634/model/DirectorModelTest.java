@@ -1,5 +1,6 @@
 package com.nbu.CSCB634.model;
 
+import com.nbu.CSCB634.model.auth.User;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -11,28 +12,33 @@ class DirectorModelTest {
 
     @Test
     void testBuilderAndGetters() {
-        Director director = Director.builder()
-                .id(1L)
+        User u = User.builder()
                 .firstName("John")
                 .lastName("Doe")
                 .build();
+        Director director = Director.builder()
+                .id(1L)
+                .user(u)
+                .build();
 
         assertThat(director.getId()).isEqualTo(1L);
-        assertThat(director.getFirstName()).isEqualTo("John");
-        assertThat(director.getLastName()).isEqualTo("Doe");
+        assertThat(director.getUser().getFirstName()).isEqualTo("John");
+        assertThat(director.getUser().getLastName()).isEqualTo("Doe");
     }
 
     @Test
     void testSetterAndEqualsHashCode() {
+        User u = User.builder()
+                .firstName("Jane")
+                .lastName("Smith")
+                .build();
         Director dir1 = new Director();
         dir1.setId(1L);
-        dir1.setFirstName("Jane");
-        dir1.setLastName("Smith");
+        dir1.setUser(u);
 
         Director dir2 = new Director();
         dir2.setId(1L);
-        dir2.setFirstName("Jane");
-        dir2.setLastName("Smith");
+        dir2.setUser(u);
 
         assertThat(dir1).isEqualTo(dir2);
         assertThat(dir1.hashCode()).isEqualTo(dir2.hashCode());
@@ -44,10 +50,13 @@ class DirectorModelTest {
 
     @Test
     void testToStringNotNull() {
+        User u = User.builder()
+                .firstName("Test")
+                .lastName("User")
+                .build();
         Director director = new Director();
         director.setId(1L);
-        director.setFirstName("Test");
-        director.setLastName("User");
+        director.setUser(u);
 
         assertThat(director.toString()).isNotNull();
     }
