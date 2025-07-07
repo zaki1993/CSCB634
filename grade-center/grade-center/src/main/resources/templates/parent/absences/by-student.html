@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${currentStudent.user.firstName + ' ' + currentStudent.user.lastName + ' - Absences'}">Student Absences</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="/css/styles.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Include Header -->
+    <div th:insert="~{header :: header}"></div>
+
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2>
+                        <i class="fas fa-user-graduate"></i>
+                        <span th:text="${currentStudent.user.firstName + ' ' + currentStudent.user.lastName}">Student Name</span>
+                        - Absences
+                    </h2>
+                    <a href="/parent/absences" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left"></i> Back to All Absences
+                    </a>
+                </div>
+
+                <!-- Children Navigation -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-child"></i> My Children
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="btn-group flex-wrap" role="group">
+                            <a href="/parent/absences" class="btn btn-outline-primary">
+                                <i class="fas fa-list"></i> All Absences
+                            </a>
+                            <a th:each="child : ${children}" 
+                               th:href="@{/parent/absences/student/{id}(id=${child.id})}"
+                               th:classappend="${child.id == currentStudent.id ? 'btn btn-info' : 'btn btn-outline-info'}">
+                                <i class="fas fa-user-graduate"></i> 
+                                <span th:text="${child.user.firstName + ' ' + child.user.lastName}">Child Name</span>
+                                <span th:if="${child.schoolClass}" 
+                                      class="badge bg-light text-dark ms-1" 
+                                      th:text="${child.schoolClass.name}">Class</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Student Info & Statistics -->
+                <div class="row mb-4">
+                    <div class="col-md-8">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">
+                                    <i class="fas fa-info-circle"></i> Student Information
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-4">
+                                        <strong>Name:</strong>
+                                        <p th:text="${currentStudent.user.firstName + ' ' + currentStudent.user.lastName}">Student Name</p>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <strong>Class:</strong>
+                                        <p th:if="${currentStudent.schoolClass}" th:text="${currentStudent.schoolClass.name}">Class</p>
+                                        <p th:unless="${currentStudent.schoolClass}" class="text-muted">No class assigned</p>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <strong>School:</strong>
+                                        <p th:text="${currentStudent.school.name}">School Name</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">
+                                    <i class="fas fa-chart-bar"></i> Absence Statistics
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row text-center">
+                                    <div class="col-12 mb-2">
+                                        <div class="border rounded p-2">
+                                            <div class="text-success">
+                                                <i class="fas fa-check-circle"></i>
+                                                <div class="fw-bold" th:text="${justifiedCount}">0</div>
+                                                <small>Justified</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12 mb-2">
+                                        <div class="border rounded p-2">
+                                            <div class="text-danger">
+                                                <i class="fas fa-times-circle"></i>
+                                                <div class="fw-bold" th:text="${unjustifiedCount}">0</div>
+                                                <small>Unjustified</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-12">
+                                        <div class="border rounded p-2">
+                                            <div class="text-warning">
+                                                <i class="fas fa-clock"></i>
+                                                <div class="fw-bold" th:text="${pendingCount}">0</div>
+                                                <small>Pending</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Absences Table -->
+                <div class="card" th:if="${!absences.isEmpty()}">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-user-times"></i> Absence Records
+                            <span class="badge bg-primary ms-2" th:text="${absences.size()} + ' total'">X total</span>
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-striped table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Subject</th>
+                                        <th>Status</th>
+                                        <th>Teacher</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr th:each="absence : ${absences}">
+                                        <td>
+                                            <span th:text="${absence.absenceDate}">2024-01-01</span>
+                                        </td>
+                                        <td>
+                                            <span th:if="${absence.subject}" 
+                                                  class="badge bg-secondary" 
+                                                  th:text="${absence.subject.name}">Subject</span>
+                                            <span th:unless="${absence.subject}" class="text-muted">
+                                                <i class="fas fa-calendar-day"></i> All day
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <span th:if="${absence.justified == null}" class="badge bg-warning">
+                                                <i class="fas fa-clock"></i> Not reviewed
+                                            </span>
+                                            <span th:if="${absence.justified == true}" class="badge bg-success">
+                                                <i class="fas fa-check"></i> Justified
+                                            </span>
+                                            <span th:if="${absence.justified == false}" class="badge bg-danger">
+                                                <i class="fas fa-times"></i> Unjustified
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <span th:text="${absence.teacher.user.firstName + ' ' + absence.teacher.user.lastName}">Teacher Name</span>
+                                        </td>
+                                        <td>
+                                            <a th:href="@{/parent/absences/view/{id}(id=${absence.id})}" 
+                                               class="btn btn-outline-primary btn-sm">
+                                                <i class="fas fa-eye"></i> View Details
+                                            </a>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Empty State -->
+                <div th:if="${absences.isEmpty()}" class="text-center py-5">
+                    <i class="fas fa-user-times fa-3x text-muted mb-3"></i>
+                    <h5 class="text-muted">No Absences Found</h5>
+                    <p class="text-muted" th:text="${currentStudent.user.firstName + ' doesn\'t have any recorded absences.'}">Student doesn't have any recorded absences.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Include Footer -->
+    <div th:insert="~{footer :: footer}"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html> 

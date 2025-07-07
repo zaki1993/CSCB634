@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${currentStudent.user.firstName + ' ' + currentStudent.user.lastName + ' - Grades'}">Student Grades</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="/css/styles.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Include Header -->
+    <div th:insert="~{header :: header}"></div>
+
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2>
+                        <i class="fas fa-user-graduate"></i>
+                        <span th:text="${currentStudent.user.firstName + ' ' + currentStudent.user.lastName}">Student Name</span>
+                        - Grades
+                    </h2>
+                    <a href="/parent/grades" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left"></i> Back to All Grades
+                    </a>
+                </div>
+
+                <!-- Children Navigation -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-child"></i> My Children
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="btn-group flex-wrap" role="group">
+                            <a href="/parent/grades" class="btn btn-outline-primary">
+                                <i class="fas fa-list"></i> All Grades
+                            </a>
+                            <a th:each="child : ${children}" 
+                               th:href="@{/parent/grades/student/{id}(id=${child.id})}"
+                               th:classappend="${child.id == currentStudent.id ? 'btn btn-info' : 'btn btn-outline-info'}">
+                                <i class="fas fa-user-graduate"></i> 
+                                <span th:text="${child.user.firstName + ' ' + child.user.lastName}">Child Name</span>
+                                <span th:if="${child.schoolClass}" 
+                                      class="badge bg-light text-dark ms-1" 
+                                      th:text="${child.schoolClass.name}">Class</span>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Student Info Card -->
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h5 class="card-title mb-0">
+                            <i class="fas fa-info-circle"></i> Student Information
+                        </h5>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-3">
+                                <strong>Name:</strong>
+                                <p th:text="${currentStudent.user.firstName + ' ' + currentStudent.user.lastName}">Student Name</p>
+                            </div>
+                            <div class="col-md-3">
+                                <strong>Class:</strong>
+                                <p th:if="${currentStudent.schoolClass}" th:text="${currentStudent.schoolClass.name}">Class</p>
+                                <p th:unless="${currentStudent.schoolClass}" class="text-muted">No class assigned</p>
+                            </div>
+                            <div class="col-md-3">
+                                <strong>School:</strong>
+                                <p th:text="${currentStudent.school.name}">School Name</p>
+                            </div>
+                            <div class="col-md-3">
+                                <strong>Total Grades:</strong>
+                                <p><span class="badge bg-primary" th:text="${grades.size()}">0</span></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Grades by Subject -->
+                <div th:if="${!gradesBySubject.isEmpty()}">
+                    <div th:each="entry : ${gradesBySubject}" class="card mb-4">
+                        <div class="card-header">
+                            <h5 class="card-title mb-0">
+                                <i class="fas fa-book"></i>
+                                <span th:text="${entry.key}">Subject Name</span>
+                                <span class="badge bg-secondary ms-2" th:text="${entry.value.size()} + ' grades'">X grades</span>
+                                
+                                <!-- Calculate average for this subject -->
+                                <span class="badge fs-6 ms-2"
+                                      th:with="average=${T(java.util.stream.DoubleStream).of(entry.value.![value]).average().orElse(0.0)}"
+                                      th:classappend="${average >= 5 ? 'bg-success' : (average >= 4 ? 'bg-warning' : 'bg-danger')}"
+                                      th:text="'Avg: ' + ${T(java.text.DecimalFormat).new('0.0').format(average)}">Avg: 0.0</span>
+                            </h5>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="table table-sm table-striped">
+                                    <thead>
+                                        <tr>
+                                            <th>Grade</th>
+                                            <th>Date</th>
+                                            <th>Teacher</th>
+                                            <th>Term</th>
+                                            <th>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr th:each="grade : ${entry.value}">
+                                            <td>
+                                                <span class="badge fs-6" 
+                                                      th:classappend="${grade.value >= 5 ? 'bg-success' : (grade.value >= 4 ? 'bg-warning' : 'bg-danger')}"
+                                                      th:text="${grade.value}">6</span>
+                                            </td>
+                                            <td>
+                                                <span th:text="${grade.dateAwarded}">2024-01-01</span>
+                                            </td>
+                                            <td>
+                                                <span th:text="${grade.teacher.user.firstName + ' ' + grade.teacher.user.lastName}">Teacher</span>
+                                            </td>
+                                            <td>
+                                                <span th:if="${grade.term}" 
+                                                      class="badge bg-info" 
+                                                      th:text="${grade.term.name}">Term</span>
+                                                <span th:unless="${grade.term}" class="text-muted">No term</span>
+                                            </td>
+                                            <td>
+                                                <a th:href="@{/parent/grades/view/{id}(id=${grade.id})}" 
+                                                   class="btn btn-outline-primary btn-sm">
+                                                    <i class="fas fa-eye"></i> View
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Empty State -->
+                <div th:if="${grades.isEmpty()}" class="text-center py-5">
+                    <i class="fas fa-graduation-cap fa-3x text-muted mb-3"></i>
+                    <h5 class="text-muted">No Grades Found</h5>
+                    <p class="text-muted" th:text="${currentStudent.user.firstName + ' doesn\'t have any grades yet.'}">Student doesn't have any grades yet.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Include Footer -->
+    <div th:insert="~{footer :: footer}"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html> 

@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -27,6 +28,12 @@ public class AcademicTermService {
 
     public List<AcademicTerm> getAllAcademicTerms() {
         return academicTermRepository.findAll();
+    }
+
+    public List<AcademicTerm> getAcademicTermsBySchoolId(Long schoolId) {
+        return academicTermRepository.findAll().stream()
+                .filter(term -> term.getSchool() != null && term.getSchool().getId().equals(schoolId))
+                .collect(Collectors.toList());
     }
 
     public AcademicTerm updateAcademicTerm(Long id, @Valid AcademicTerm academicTermDetails) {

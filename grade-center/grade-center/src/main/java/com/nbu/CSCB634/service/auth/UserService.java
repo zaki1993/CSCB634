@@ -45,6 +45,18 @@ public class UserService {
         return userRepository.findAll();
     }
 
+    public List<User> findAllUsers() {
+        return userRepository.findAll();
+    }
+
+    public Optional<User> findById(Long id) {
+        return userRepository.findById(id);
+    }
+
+    public void deleteById(Long id) {
+        userRepository.deleteById(id);
+    }
+
     public void updateUserRole(Long userId, Role role) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("User not found with ID: " + userId));

@@ -1,10 +1,10 @@
 package com.nbu.CSCB634.service;
 
-import com.nbu.CSCB634.model.Grade;
+import com.nbu.CSCB634.model.Absence;
 import com.nbu.CSCB634.model.Parent;
 import com.nbu.CSCB634.model.Student;
 import com.nbu.CSCB634.model.Teacher;
-import com.nbu.CSCB634.repository.GradeRepository;
+import com.nbu.CSCB634.repository.AbsenceRepository;
 import com.nbu.CSCB634.repository.ParentRepository;
 import com.nbu.CSCB634.repository.StudentRepository;
 import com.nbu.CSCB634.repository.TeacherRepository;
@@ -13,65 +13,65 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class GradeService {
+public class AbsenceService {
 
-    private final GradeRepository gradeRepository;
+    private final AbsenceRepository absenceRepository;
     private final StudentRepository studentRepository;
     private final TeacherRepository teacherRepository;
     private final ParentRepository parentRepository;
 
     @PreAuthorize("hasRole('TEACHER')")
-    public Grade createGrade(@Valid Grade grade) {
-        return gradeRepository.save(grade);
+    public Absence createAbsence(@Valid Absence absence) {
+        return absenceRepository.save(absence);
     }
 
     @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'DIRECTOR', 'TEACHER', 'PARENT', 'STUDENT')")
-    public Optional<Grade> getGradeById(Long id) {
-        return gradeRepository.findById(id);
+    public Optional<Absence> getAbsenceById(Long id) {
+        return absenceRepository.findById(id);
     }
 
     @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'DIRECTOR', 'TEACHER', 'PARENT')")
-    public List<Grade> getGradesByStudentId(Long studentId) {
+    public List<Absence> getAbsencesByStudentId(Long studentId) {
         Student student = studentRepository.findById(studentId)
                 .orElseThrow(() -> new IllegalArgumentException("Student not found"));
-        return gradeRepository.findByStudent(student);
+        return absenceRepository.findByStudent(student);
     }
 
     @PreAuthorize("hasRole('TEACHER')")
-    public Grade updateGrade(Long id, @Valid Grade updatedGrade) {
-        return gradeRepository.findById(id)
-                .map(grade -> {
-                    grade.setValue(updatedGrade.getValue());
-                    grade.setDateAwarded(updatedGrade.getDateAwarded());
-                    grade.setSubject(updatedGrade.getSubject());
-                    // teacher/student usually not updated here
-                    return gradeRepository.save(grade);
-                })
-                .orElseThrow(() -> new IllegalArgumentException("Grade not found"));
-    }
-
-    @PreAuthorize("hasRole('TEACHER')")
-    public void deleteGrade(Long id) {
-        Grade grade = gradeRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Grade not found"));
-        gradeRepository.delete(grade);
-    }
-
-    public List<Grade> getAll() {
-        return gradeRepository.findAll();
-    }
-
-    @PreAuthorize("hasRole('TEACHER')")
-    public List<Grade> getGradesByTeacherId(Long teacherId) {
+    public List<Absence> getAbsencesByTeacherId(Long teacherId) {
         Teacher teacher = teacherRepository.findById(teacherId)
                 .orElseThrow(() -> new IllegalArgumentException("Teacher not found"));
-        return gradeRepository.findByTeacher(teacher);
+        return absenceRepository.findByTeacher(teacher);
+    }
+
+    @PreAuthorize("hasRole('TEACHER')")
+    public Absence updateAbsence(Long id, @Valid Absence updatedAbsence) {
+        return absenceRepository.findById(id)
+                .map(absence -> {
+                    absence.setAbsenceDate(updatedAbsence.getAbsenceDate());
+                    absence.setJustified(updatedAbsence.getJustified());
+                    absence.setSubject(updatedAbsence.getSubject());
+                    return absenceRepository.save(absence);
+                })
+                .orElseThrow(() -> new IllegalArgumentException("Absence not found"));
+    }
+
+    @PreAuthorize("hasRole('TEACHER')")
+    public void deleteAbsence(Long id) {
+        Absence absence = absenceRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Absence not found"));
+        absenceRepository.delete(absence);
+    }
+
+    public List<Absence> getAll() {
+        return absenceRepository.findAll();
     }
 
     // Get students that a teacher can manage (same school)
@@ -94,9 +94,9 @@ public class GradeService {
         return teacher.getSchool().getId().equals(student.getSchool().getId());
     }
 
-    // Get grades for all children of a parent
+    // Get absences for all children of a parent
     @PreAuthorize("hasRole('PARENT')")
-    public List<Grade> getGradesByParentId(Long parentId) {
+    public List<Absence> getAbsencesByParentId(Long parentId) {
         Parent parent = parentRepository.findById(parentId)
                 .orElseThrow(() -> new IllegalArgumentException("Parent not found"));
         
@@ -105,13 +105,13 @@ public class GradeService {
         }
         
         return parent.getStudents().stream()
-                .flatMap(student -> gradeRepository.findByStudent(student).stream())
+                .flatMap(student -> absenceRepository.findByStudent(student).stream())
                 .collect(Collectors.toList());
     }
 
-    // Get grades for a specific child of a parent
+    // Get absences for a specific child of a parent
     @PreAuthorize("hasRole('PARENT')")
-    public List<Grade> getGradesByParentAndStudent(Long parentId, Long studentId) {
+    public List<Absence> getAbsencesByParentAndStudent(Long parentId, Long studentId) {
         Parent parent = parentRepository.findById(parentId)
                 .orElseThrow(() -> new IllegalArgumentException("Parent not found"));
         Student student = studentRepository.findById(studentId)
@@ -122,10 +122,10 @@ public class GradeService {
             throw new IllegalArgumentException("Student does not belong to this parent");
         }
         
-        return gradeRepository.findByStudent(student);
+        return absenceRepository.findByStudent(student);
     }
 
-    // Check if parent can view grades of a specific student
+    // Check if parent can view absences of a specific student
     @PreAuthorize("hasRole('PARENT')")
     public boolean canParentViewStudent(Long parentId, Long studentId) {
         Parent parent = parentRepository.findById(parentId)
@@ -146,4 +146,4 @@ public class GradeService {
                 parent.getStudents().stream().collect(Collectors.toList()) : 
                 List.of();
     }
-}
+} 

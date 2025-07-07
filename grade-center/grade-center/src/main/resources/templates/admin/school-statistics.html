@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="'School Statistics - ' + ${school.name}">School Statistics</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="/css/styles.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Include Header -->
+    <div th:insert="~{header :: header}"></div>
+
+    <div class="container-fluid mt-4">
+        <div class="row">
+            <div class="col-md-12">
+                <!-- Header -->
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h2>
+                        <i class="fas fa-school"></i> 
+                        <span th:text="${school.name}">School Name</span>
+                        <small class="text-muted">- Statistics</small>
+                    </h2>
+                    <div>
+                        <a href="/admin/dashboard/schools" class="btn btn-outline-secondary me-2">
+                            <i class="fas fa-arrow-left"></i> Back to Schools
+                        </a>
+                        <a href="/admin/dashboard/statistics" class="btn btn-outline-primary">
+                            <i class="fas fa-chart-line"></i> Global Statistics
+                        </a>
+                    </div>
+                </div>
+
+                <!-- School Info Card -->
+                <div class="row mb-4">
+                    <div class="col-md-12">
+                        <div class="card">
+                            <div class="card-header bg-primary text-white">
+                                <h5 class="card-title mb-0">
+                                    <i class="fas fa-info-circle"></i> School Information
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <p><strong>Name:</strong> <span th:text="${school.name}">School Name</span></p>
+                                        <p><strong>Address:</strong> <span th:text="${school.address}">School Address</span></p>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <p><strong>Total Students:</strong> <span th:text="${studentCount}">0</span></p>
+                                        <p><strong>Total Grades:</strong> <span th:text="${gradeCount}">0</span></p>
+                                        <p><strong>Total Absences:</strong> <span th:text="${absenceCount}">0</span></p>
+                                        <p><strong>Average Grade:</strong> 
+                                            <span class="badge fs-6" 
+                                                  th:with="avg=${averageGrade}"
+                                                  th:classappend="${avg >= 5 ? 'bg-success' : (avg >= 4 ? 'bg-warning text-dark' : 'bg-danger')}"
+                                                  th:text="${T(java.text.DecimalFormat).new('0.00').format(avg)}">0.00</span>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Statistics Overview -->
+                <div class="row mb-4">
+                    <div class="col-md-3">
+                        <div class="card text-center bg-info text-white">
+                            <div class="card-body">
+                                <i class="fas fa-user-graduate fa-3x mb-3"></i>
+                                <h3 th:text="${studentCount}">0</h3>
+                                <h5>Students</h5>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card text-center bg-success text-white">
+                            <div class="card-body">
+                                <i class="fas fa-graduation-cap fa-3x mb-3"></i>
+                                <h3 th:text="${gradeCount}">0</h3>
+                                <h5>Grades</h5>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card text-center bg-warning text-dark">
+                            <div class="card-body">
+                                <i class="fas fa-user-times fa-3x mb-3"></i>
+                                <h3 th:text="${absenceCount}">0</h3>
+                                <h5>Absences</h5>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card text-center bg-primary text-white">
+                            <div class="card-body">
+                                <i class="fas fa-star fa-3x mb-3"></i>
+                                <h3 th:text="${averageGrade != null ? #numbers.formatDecimal(averageGrade, 0, 2) : '0.00'}">0.00</h3>
+                                <h5>Average Grade</h5>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Grade Distribution -->
+                <div class="row mb-4">
+                    <div class="col-md-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">
+                                    <i class="fas fa-chart-bar"></i> Grade Distribution
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div th:if="${gradeDistribution.isEmpty()}" class="text-center text-muted py-4">
+                                    No grades recorded for this school yet
+                                </div>
+                                <div th:unless="${gradeDistribution.isEmpty()}">
+                                    <div class="row">
+                                        <div th:each="entry : ${gradeDistribution}" class="col-md-2 mb-3">
+                                            <div class="text-center p-4 border rounded h-100" 
+                                                 th:classappend="${entry.key >= 5 ? 'bg-success text-white' : 
+                                                                  (entry.key >= 4 ? 'bg-warning' : 'bg-danger text-white')}">
+                                                <h6>Grade <span th:text="${entry.key}">6</span></h6>
+                                                <h3 th:text="${entry.value}">0</h3>
+                                                <small>students</small>
+                                                <div class="mt-2">
+                                                    <small th:text="${T(java.text.DecimalFormat).new('0.0').format(entry.value * 100.0 / gradeCount)}">0.0</small>%
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Statistics by Subject -->
+                <div class="row">
+                    <div class="col-md-12">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">
+                                    <i class="fas fa-book"></i> Statistics by Subject
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div th:if="${subjectStats.isEmpty()}" class="text-center text-muted py-4">
+                                    No subject statistics available for this school
+                                </div>
+                                <div th:unless="${subjectStats.isEmpty()}" class="table-responsive">
+                                    <table class="table table-striped table-hover">
+                                        <thead class="table-dark">
+                                            <tr>
+                                                <th>Subject</th>
+                                                <th>Total Grades</th>
+                                                <th>Average Grade</th>
+                                                <th>Grade Distribution</th>
+                                                <th>Performance</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr th:each="entry : ${subjectStats}">
+                                                <td><strong th:text="${entry.key}">Subject Name</strong></td>
+                                                <td th:text="${entry.value.count}">0</td>
+                                                <td>
+                                                    <span class="badge fs-6" 
+                                                          th:with="avg=${entry.value.average}"
+                                                          th:classappend="${avg >= 5 ? 'bg-success' : (avg >= 4 ? 'bg-warning text-dark' : 'bg-danger')}"
+                                                          th:text="${T(java.text.DecimalFormat).new('0.00').format(avg)}">0.00</span>
+                                                </td>
+                                                <td>
+                                                    <div class="d-flex gap-1">
+                                                        <span th:each="gradeEntry : ${entry.value.distribution}" 
+                                                              class="badge text-white" 
+                                                              th:classappend="${gradeEntry.key >= 5 ? 'bg-success' : (gradeEntry.key >= 4 ? 'bg-warning' : 'bg-danger')}"
+                                                              th:text="${gradeEntry.key + ':' + gradeEntry.value}">6:0</span>
+                                                    </div>
+                                                </td>
+                                                <td>
+                                                    <div class="progress" style="height: 20px;">
+                                                        <div class="progress-bar" 
+                                                             th:with="avg=${entry.value.average}"
+                                                             th:classappend="${avg >= 5 ? 'bg-success' : (avg >= 4 ? 'bg-warning' : 'bg-danger')}"
+                                                             th:style="'width: ' + (avg * 100 / 6) + '%'"
+                                                             th:text="${T(java.text.DecimalFormat).new('0.0').format(avg)}">
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Include Footer -->
+    <div th:insert="~{footer :: footer}"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html> 

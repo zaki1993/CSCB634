@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -29,6 +30,13 @@ public class TeacherService {
     @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'DIRECTOR')")
     public List<Teacher> getAllTeachers() {
         return teacherRepository.findAll();
+    }
+
+    @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'DIRECTOR')")
+    public List<Teacher> getTeachersBySchoolId(Long schoolId) {
+        return teacherRepository.findAll().stream()
+                .filter(teacher -> teacher.getSchool() != null && teacher.getSchool().getId().equals(schoolId))
+                .collect(Collectors.toList());
     }
 
     @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'DIRECTOR')")

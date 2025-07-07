@@ -27,6 +27,13 @@ public class DirectorService {
     }
 
     @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'DIRECTOR')")
+    public Optional<Director> getDirectorByUserId(Long userId) {
+        return directorRepository.findAll().stream()
+                .filter(director -> director.getUser().getId().equals(userId))
+                .findFirst();
+    }
+
+    @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'DIRECTOR')")
     public List<Director> getAllDirectors() {
         return directorRepository.findAll();
     }

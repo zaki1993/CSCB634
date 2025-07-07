@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Director Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="/css/styles.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Include Header -->
+    <div th:insert="~{header :: header}"></div>
+
+    <div class="container-fluid mt-4">
+        <div class="row">
+            <div class="col-md-12">
+                <!-- Header -->
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h1>
+                        <i class="fas fa-tachometer-alt"></i> Director Dashboard
+                    </h1>
+                    <div class="text-end">
+                        <h5 class="mb-0" th:text="${school.name}">School Name</h5>
+                        <small class="text-muted" th:text="${school.address}">School Address</small>
+                    </div>
+                </div>
+
+                <!-- Quick Stats Cards -->
+                <div class="row mb-4">
+                    <div class="col-md-2">
+                        <div class="card text-center bg-primary text-white">
+                            <div class="card-body">
+                                <i class="fas fa-user-graduate fa-2x mb-2"></i>
+                                <h4 th:text="${studentsCount}">0</h4>
+                                <p class="mb-0">Students</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="card text-center bg-success text-white">
+                            <div class="card-body">
+                                <i class="fas fa-chalkboard-teacher fa-2x mb-2"></i>
+                                <h4 th:text="${teachersCount}">0</h4>
+                                <p class="mb-0">Teachers</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="card text-center bg-info text-white">
+                            <div class="card-body">
+                                <i class="fas fa-users fa-2x mb-2"></i>
+                                <h4 th:text="${parentsCount}">0</h4>
+                                <p class="mb-0">Parents</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="card text-center bg-warning text-white">
+                            <div class="card-body">
+                                <i class="fas fa-graduation-cap fa-2x mb-2"></i>
+                                <h4 th:text="${totalGrades}">0</h4>
+                                <p class="mb-0">Total Grades</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="card text-center bg-secondary text-white">
+                            <div class="card-body">
+                                <i class="fas fa-star fa-2x mb-2"></i>
+                                <h4 th:text="${averageGrade != null ? #numbers.formatDecimal(averageGrade, 0, 2) : '0.00'}">0.00</h4>
+                                <p class="mb-0">Avg Grade</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-2">
+                        <div class="card text-center bg-danger text-white">
+                            <div class="card-body">
+                                <i class="fas fa-user-times fa-2x mb-2"></i>
+                                <h4 th:text="${totalAbsences}">0</h4>
+                                <p class="mb-0">Total Absences</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Navigation Cards -->
+                <div class="row mb-4">
+                    <div class="col-md-3">
+                        <div class="card">
+                            <div class="card-body text-center">
+                                <i class="fas fa-user-graduate fa-3x text-primary mb-3"></i>
+                                <h5 class="card-title">Students</h5>
+                                <p class="card-text">View all students in your school</p>
+                                <a href="/director/dashboard/students" class="btn btn-primary">View Students</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card">
+                            <div class="card-body text-center">
+                                <i class="fas fa-chalkboard-teacher fa-3x text-success mb-3"></i>
+                                <h5 class="card-title">Teachers</h5>
+                                <p class="card-text">View all teachers in your school</p>
+                                <a href="/director/dashboard/teachers" class="btn btn-success">View Teachers</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card">
+                            <div class="card-body text-center">
+                                <i class="fas fa-users fa-3x text-info mb-3"></i>
+                                <h5 class="card-title">Parents</h5>
+                                <p class="card-text">View all parents in your school</p>
+                                <a href="/director/dashboard/parents" class="btn btn-info">View Parents</a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <div class="card">
+                            <div class="card-body text-center">
+                                <i class="fas fa-chart-bar fa-3x text-warning mb-3"></i>
+                                <h5 class="card-title">Statistics</h5>
+                                <p class="card-text">View detailed statistics</p>
+                                <a href="/director/dashboard/statistics" class="btn btn-warning">View Statistics</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Grade Distribution Chart -->
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">
+                                    <i class="fas fa-chart-pie"></i> Grade Distribution
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div th:if="${gradeDistribution.isEmpty()}" class="text-center text-muted">
+                                    No grades found
+                                </div>
+                                <div th:unless="${gradeDistribution.isEmpty()}">
+                                    <div th:each="entry : ${gradeDistribution}" class="mb-2">
+                                        <div class="d-flex justify-content-between">
+                                            <span>Grade <span th:text="${entry.key}">6</span></span>
+                                            <span><strong th:text="${entry.value}">0</strong> students</span>
+                                        </div>
+                                        <div class="progress">
+                                            <div class="progress-bar" 
+                                                 th:classappend="${entry.key >= 5 ? 'bg-success' : (entry.key >= 4 ? 'bg-warning' : 'bg-danger')}"
+                                                 th:style="'width: ' + (${entry.value} * 100.0 / ${totalGrades}) + '%'">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">
+                                    <i class="fas fa-chart-bar"></i> Absence Statistics
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div class="row text-center">
+                                    <div class="col-4">
+                                        <div class="border rounded p-3">
+                                            <i class="fas fa-check-circle text-success fa-2x"></i>
+                                            <h4 class="mt-2" th:text="${justifiedAbsences}">0</h4>
+                                            <small>Justified</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-4">
+                                        <div class="border rounded p-3">
+                                            <i class="fas fa-times-circle text-danger fa-2x"></i>
+                                            <h4 class="mt-2" th:text="${unjustifiedAbsences}">0</h4>
+                                            <small>Unjustified</small>
+                                        </div>
+                                    </div>
+                                    <div class="col-4">
+                                        <div class="border rounded p-3">
+                                            <i class="fas fa-clock text-warning fa-2x"></i>
+                                            <h4 class="mt-2" th:text="${totalAbsences - justifiedAbsences - unjustifiedAbsences}">0</h4>
+                                            <small>Pending</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recent Activity -->
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">
+                                    <i class="fas fa-clock"></i> Recent Grades
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div th:if="${recentGrades.isEmpty()}" class="text-center text-muted">
+                                    No recent grades
+                                </div>
+                                <div th:unless="${recentGrades.isEmpty()}">
+                                    <div th:each="grade : ${recentGrades}" class="border-bottom pb-2 mb-2">
+                                        <div class="d-flex justify-content-between">
+                                            <div>
+                                                <strong th:text="${grade.student.user.firstName + ' ' + grade.student.user.lastName}">Student</strong>
+                                                <br>
+                                                <small class="text-muted" th:text="${grade.subject.name}">Subject</small>
+                                            </div>
+                                            <div class="text-end">
+                                                <span class="badge fs-6" 
+                                                      th:classappend="${grade.value >= 5 ? 'bg-success' : (grade.value >= 4 ? 'bg-warning' : 'bg-danger')}"
+                                                      th:text="${grade.value}">6</span>
+                                                <br>
+                                                <small class="text-muted" th:text="${grade.dateAwarded}">Date</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">
+                                    <i class="fas fa-clock"></i> Recent Absences
+                                </h5>
+                            </div>
+                            <div class="card-body">
+                                <div th:if="${recentAbsences.isEmpty()}" class="text-center text-muted">
+                                    No recent absences
+                                </div>
+                                <div th:unless="${recentAbsences.isEmpty()}">
+                                    <div th:each="absence : ${recentAbsences}" class="border-bottom pb-2 mb-2">
+                                        <div class="d-flex justify-content-between">
+                                            <div>
+                                                <strong th:text="${absence.student.user.firstName + ' ' + absence.student.user.lastName}">Student</strong>
+                                                <br>
+                                                <small class="text-muted" th:text="${absence.subject != null ? absence.subject.name : 'All day'}">Subject</small>
+                                            </div>
+                                            <div class="text-end">
+                                                <span th:if="${absence.justified == null}" class="badge bg-warning">Pending</span>
+                                                <span th:if="${absence.justified == true}" class="badge bg-success">Justified</span>
+                                                <span th:if="${absence.justified == false}" class="badge bg-danger">Unjustified</span>
+                                                <br>
+                                                <small class="text-muted" th:text="${absence.absenceDate}">Date</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Include Footer -->
+    <div th:insert="~{footer :: footer}"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html> 

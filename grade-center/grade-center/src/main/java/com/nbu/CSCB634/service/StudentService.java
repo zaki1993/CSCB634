@@ -1,6 +1,7 @@
 package com.nbu.CSCB634.service;
 
 import com.nbu.CSCB634.model.Student;
+import com.nbu.CSCB634.model.Teacher;
 import com.nbu.CSCB634.repository.StudentRepository;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -9,6 +10,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -25,6 +27,13 @@ public class StudentService {
     public Optional<Student> getStudentById(Long id) {
         return studentRepository.findById(id);
     }
+
+  @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'DIRECTOR')")
+  public List<Student> getStudentsBySchoolId(Long schoolId) {
+    return studentRepository.findAll().stream()
+                            .filter(teacher -> teacher.getSchool() != null && teacher.getSchool().getId().equals(schoolId))
+                            .collect(Collectors.toList());
+  }
 
     @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'DIRECTOR', 'TEACHER')")
     public List<Student> getAllStudents() {

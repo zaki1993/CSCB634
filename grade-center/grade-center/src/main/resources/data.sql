@@ -101,6 +101,34 @@ INSERT INTO academicterm_subjects (academic_term_id, subject_id) VALUES (2, 4) O
 INSERT INTO academicterm_teachers (academic_term_id, teacher_id) VALUES (1, 4) ON CONFLICT DO NOTHING;
 INSERT INTO academicterm_teachers (academic_term_id, teacher_id) VALUES (2, 5) ON CONFLICT DO NOTHING;
 
+-- Sample Grades
+INSERT INTO grade (id, value, dateawarded, student_id, subject_id, teacher_id, term_id) VALUES
+(1, 6, '2024-01-15', 8, 1, 4, 1) ON CONFLICT (id) DO NOTHING;
+INSERT INTO grade (id, value, dateawarded, student_id, subject_id, teacher_id, term_id) VALUES
+(2, 5, '2024-01-20', 8, 3, 4, 1) ON CONFLICT (id) DO NOTHING;
+INSERT INTO grade (id, value, dateawarded, student_id, subject_id, teacher_id, term_id) VALUES
+(3, 6, '2024-01-25', 9, 1, 4, 1) ON CONFLICT (id) DO NOTHING;
+INSERT INTO grade (id, value, dateawarded, student_id, subject_id, teacher_id, term_id) VALUES
+(4, 4, '2024-02-01', 9, 3, 4, 1) ON CONFLICT (id) DO NOTHING;
+INSERT INTO grade (id, value, dateawarded, student_id, subject_id, teacher_id, term_id) VALUES
+(5, 3, '2024-02-05', 10, 1, 4, 1) ON CONFLICT (id) DO NOTHING;
+INSERT INTO grade (id, value, dateawarded, student_id, subject_id, teacher_id, term_id) VALUES
+(6, 5, '2024-02-10', 11, 2, 5, 2) ON CONFLICT (id) DO NOTHING;
+
+-- Sample Absences
+INSERT INTO absence (id, absencedate, justified, student_id, teacher_id, subject_id) VALUES
+(1, '2024-01-16', true, 8, 4, 1) ON CONFLICT (id) DO NOTHING;
+INSERT INTO absence (id, absencedate, justified, student_id, teacher_id, subject_id) VALUES
+(2, '2024-01-22', false, 8, 4, 3) ON CONFLICT (id) DO NOTHING;
+INSERT INTO absence (id, absencedate, justified, student_id, teacher_id, subject_id) VALUES
+(3, '2024-01-30', null, 9, 4, 1) ON CONFLICT (id) DO NOTHING;
+INSERT INTO absence (id, absencedate, justified, student_id, teacher_id, subject_id) VALUES
+(4, '2024-02-03', true, 9, 4, null) ON CONFLICT (id) DO NOTHING;
+INSERT INTO absence (id, absencedate, justified, student_id, teacher_id, subject_id) VALUES
+(5, '2024-02-08', false, 10, 4, 1) ON CONFLICT (id) DO NOTHING;
+INSERT INTO absence (id, absencedate, justified, student_id, teacher_id, subject_id) VALUES
+(6, '2024-02-12', null, 11, 5, 2) ON CONFLICT (id) DO NOTHING;
+
 -- Synchronize sequences with existing data
 -- This fixes the duplicate key error when creating new records
 SELECT setval('school_id_seq', COALESCE((SELECT MAX(id) FROM school), 1), true);
@@ -108,5 +136,7 @@ SELECT setval('schoolclass_id_seq', COALESCE((SELECT MAX(id) FROM schoolclass), 
 SELECT setval('subject_id_seq', COALESCE((SELECT MAX(id) FROM subject), 1), true);
 SELECT setval('grade_center_users_id_seq', COALESCE((SELECT MAX(id) FROM grade_center_users), 1), true);
 SELECT setval('academicterm_id_seq', COALESCE((SELECT MAX(id) FROM academicterm), 1), true);
+SELECT setval('grade_id_seq', COALESCE((SELECT MAX(id) FROM grade), 1), true);
+SELECT setval('absence_id_seq', COALESCE((SELECT MAX(id) FROM absence), 1), true);
 
 commit;

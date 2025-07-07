@@ -32,13 +32,23 @@ public class HomeController {
      */
     @GetMapping("/")
     public String homePage(Model model) {
-        // You can add more data as needed
-        model.addAttribute("studentsCount", studentService.getAllStudents().size());
-        model.addAttribute("teachersCount", teacherService.getAllTeachers().size());
-        model.addAttribute("schoolsCount", schoolService.getAllSchools().size());
-        model.addAttribute("parentsCount", parentService.getAllParents().size());
-        model.addAttribute("directorsCount", directorService.getAllDirectors().size());
+        try {
+            // You can add more data as needed
+            model.addAttribute("studentsCount", studentService.getAllStudents().size());
+            model.addAttribute("teachersCount", teacherService.getAllTeachers().size());
+            model.addAttribute("schoolsCount", schoolService.getAllSchools().size());
+            model.addAttribute("parentsCount", parentService.getAllParents().size());
+            model.addAttribute("directorsCount", directorService.getAllDirectors().size());
 
-        return "home";
+            return "home";
+        } catch (Exception e) {
+            model.addAttribute("error", "Error loading home page: " + e.getMessage());
+            return "error";
+        }
+    }
+
+    @GetMapping("/error")
+    public String errorPage(Model model) {
+        return "error";
     }
 }
