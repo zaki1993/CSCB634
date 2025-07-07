@@ -11,6 +11,7 @@ import com.nbu.CSCB634.service.auth.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -30,6 +31,7 @@ public class ParentWebController {
     private final ParentService parentService;
     private final UserService userService;
     private final StudentService studentService;
+    private final PasswordEncoder passwordEncoder;
     
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'DIRECTOR')")
@@ -68,24 +70,24 @@ public class ParentWebController {
                     .firstName(parentDto.getFirstName())
                     .lastName(parentDto.getLastName())
                     .email(parentDto.getEmail())
-                    .password("parent123") // Парола по подразбиране
+                    .password(passwordEncoder.encode("parent123")) // Парола по подразбиране
                     .role(Role.PARENT)
                     .build();
             
             User savedUser;
-            try {
-                savedUser = userService.registerUser(user);
-            } catch (Exception e) {
-                // Опитваме с next available ID
-                Long nextId = userService.getNextAvailableId();
-                user.setId(nextId);
-                savedUser = userService.registerUser(user);
-            }
+//            try {
+//                savedUser = userService.registerUser(user);
+//            } catch (Exception e) {
+//                // Опитваме с next available ID
+//                Long nextId = userService.getNextAvailableId();
+//                user.setId(nextId);
+//                savedUser = userService.registerUser(user);
+//            }
             
             // Създаване на Parent
             Parent parent = Parent.builder()
-                    .id(savedUser.getId())
-                    .user(savedUser)
+                    .id(user.getId())
+                    .user(user)
                     .build();
             
             // Задаване на ученици

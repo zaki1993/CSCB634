@@ -11,6 +11,7 @@ import com.nbu.CSCB634.service.auth.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -28,6 +29,7 @@ public class DirectorWebController {
     private final DirectorService directorService;
     private final UserService userService;
     private final SchoolService schoolService;
+    private final PasswordEncoder passwordEncoder;
     
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'DIRECTOR')")
@@ -60,25 +62,55 @@ public class DirectorWebController {
         }
         
         try {
-            // Създаване на User
+            
+            // Създаване на User с уникално име ако е необходимо
+            String baseUsername = directorDto.getUsername().trim().toLowerCase();
+            String uniqueUsername = baseUsername;
+            int counter = 1;
+            
+            // Намираме уникално потребителско име
+            while (userService.findByUsername(uniqueUsername).isPresent()) {
+                uniqueUsername = baseUsername + counter;
+                counter++;
+            }
+            
+            // Проверка за email конфликт
+            if (userService.existsByEmail(directorDto.getEmail().trim())) {
+                result.rejectValue("email", "error.email", "Email адресът вече се използва");
+                model.addAttribute("schools", schoolService.getAllSchools());
+                return "directors/form";
+            }
+            
             User user = User.builder()
-                    .username(directorDto.getUsername())
-                    .firstName(directorDto.getFirstName())
-                    .lastName(directorDto.getLastName())
-                    .email(directorDto.getEmail())
-                    .password("director123") // Парола по подразбиране
+                    .username(uniqueUsername)
+                    .firstName(directorDto.getFirstName().trim())
+                    .lastName(directorDto.getLastName().trim())
+                    .email(directorDto.getEmail().trim())
+                    .password(passwordEncoder.encode("director123")) // Парола по подразбиране
                     .role(Role.DIRECTOR)
                     .build();
             
             User savedUser;
-            try {
-                savedUser = userService.registerUser(user);
-            } catch (Exception e) {
-                // Опитваме с next available ID
-                Long nextId = userService.getNextAvailableId();
-                user.setId(nextId);
-                savedUser = userService.registerUser(user);
-            }
+//            try {
+//                savedUser = userService.registerUser(user);
+//
+//                // Проверка дали User-ът е запазен с ID
+//                if (savedUser == null || savedUser.getId() == null) {
+//                    throw new IllegalArgumentException("Грешка при създаване на потребител - ID е null");
+//                }
+//            } catch (com.nbu.CSCB634.service.exceptions.UserAlreadyExistException e) {
+//                // Ако username или email вече съществуват, не можем да продължим
+//                throw new IllegalArgumentException("Потребителското име или email вече се използват: " + e.getMessage());
+//            } catch (Exception e) {
+//                // Ако има проблем с auto-generation, опитваме с ръчно ID
+//                Long nextId = userService.getNextAvailableId();
+//                user.setId(nextId);
+//                savedUser = userService.save(user);
+//
+//                if (savedUser == null || savedUser.getId() == null) {
+//                    throw new IllegalArgumentException("Грешка при създаване на потребител - ID е все още null");
+//                }
+//            }
             
             // Намиране на училището
             School school = schoolService.getSchoolById(directorDto.getSchoolId())
@@ -86,22 +118,19 @@ public class DirectorWebController {
             
             // Създаване на Director
             Director director = Director.builder()
-                    .id(savedUser.getId())
-                    .user(savedUser)
+                    .id(user.getId())
+                    .user(user)
                     .school(school)
                     .build();
             
-            Director savedDirector;
-            try {
-                savedDirector = directorService.createDirector(director);
-            } catch (Exception e) {
-                // Опитваме с next available ID
-                Long nextId = directorService.getNextAvailableId();
-                director.setId(nextId);
-                savedDirector = directorService.createDirector(director);
+            Director savedDirector = directorService.createDirector(director);
+            
+            String successMessage = "Директорът е създаден успешно!";
+            if (!uniqueUsername.equals(baseUsername)) {
+                successMessage += " Потребителското име е променено на '" + uniqueUsername + "' заради конфликт.";
             }
             
-            redirectAttributes.addFlashAttribute("success", "Директорът е създаден успешно!");
+            redirectAttributes.addFlashAttribute("success", successMessage);
             return "redirect:/directors";
             
         } catch (Exception e) {

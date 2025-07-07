@@ -101,7 +101,7 @@ class DirectorDashboardControllerTest {
         parent = Parent.builder()
                 .id(1L)
                 .user(user)
-                .students((Set<Student>) Arrays.asList(student))
+                .students(new HashSet<>(Arrays.asList(student)))
                 .build();
 
         director = Director.builder()

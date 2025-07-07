@@ -20,7 +20,7 @@ public class Student {
     @Id
     private Long id;  // Same as User.id
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.REMOVE)
     @MapsId
     @JoinColumn(name = "id")
     private User user;
@@ -36,4 +36,12 @@ public class Student {
     // Example of ManyToMany with Parents
     @ManyToMany(mappedBy = "students")
     private List<Parent> parents;
+
+    // Каскадно изтриване на оценки на този ученик
+    @OneToMany(mappedBy = "student", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<Grade> grades;
+
+    // Каскадно изтриване на отсъствия на този ученик
+    @OneToMany(mappedBy = "student", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<Absence> absences;
 }

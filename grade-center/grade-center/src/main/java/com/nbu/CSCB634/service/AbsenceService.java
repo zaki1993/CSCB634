@@ -1,5 +1,6 @@
 package com.nbu.CSCB634.service;
 
+import com.nbu.CSCB634.config.DatabaseSequenceSync;
 import com.nbu.CSCB634.model.Absence;
 import com.nbu.CSCB634.model.Parent;
 import com.nbu.CSCB634.model.Student;
@@ -10,6 +11,7 @@ import com.nbu.CSCB634.repository.StudentRepository;
 import com.nbu.CSCB634.repository.TeacherRepository;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
@@ -20,16 +22,50 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class AbsenceService {
 
     private final AbsenceRepository absenceRepository;
     private final StudentRepository studentRepository;
     private final TeacherRepository teacherRepository;
     private final ParentRepository parentRepository;
+    private final DatabaseSequenceSync sequenceSync;
 
     @PreAuthorize("hasRole('TEACHER')")
     public Absence createAbsence(@Valid Absence absence) {
-        return absenceRepository.save(absence);
+        try {
+            // Първи опит - нормално запазване с auto-increment
+            return absenceRepository.save(absence);
+        } catch (Exception e) {
+            // Ако има проблем с sequence, синхронизираме го и опитваме отново
+            if (e.getMessage().contains("duplicate key") || e.getMessage().contains("already exists")) {
+                log.warn("Открит конфликт с absence ID, синхронизираме sequence и опитваме отново");
+                
+                try {
+                    // Синхронизираме absence sequence с текущите данни
+                    sequenceSync.syncAbsenceSequence();
+                    
+                    // Създаваме нов обект без ID (за да се генерира автоматично)
+                    Absence newAbsence = Absence.builder()
+                            .absenceDate(absence.getAbsenceDate())
+                            .justified(absence.getJustified())
+                            .student(absence.getStudent())
+                            .teacher(absence.getTeacher())
+                            .subject(absence.getSubject())
+                            .build();
+                    
+                    // Втори опит със синхронизиран sequence
+                    return absenceRepository.save(newAbsence);
+                    
+                } catch (Exception retryException) {
+                    log.error("Неуспешен втори опит за създаване на отсъствие: {}", retryException.getMessage());
+                    // Ако и втория опит не успее, хвърляме оригиналната грешка
+                    throw new RuntimeException("Неуспешно създаване на отсъствие: " + e.getMessage(), e);
+                }
+            }
+            // Ако не е sequence проблем, хвърляме оригиналната грешка
+            throw e;
+        }
     }
 
     @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'DIRECTOR', 'TEACHER', 'PARENT', 'STUDENT')")
@@ -145,5 +181,17 @@ public class AbsenceService {
         return parent.getStudents() != null ? 
                 parent.getStudents().stream().collect(Collectors.toList()) : 
                 List.of();
+    }
+
+    /**
+     * Получава следващото налично ID за отсъствие (backup метод)
+     */
+    public Long getNextAvailableId() {
+        List<Absence> allAbsences = absenceRepository.findAll();
+        Long maxId = allAbsences.stream()
+                .mapToLong(Absence::getId)
+                .max()
+                .orElse(0L);
+        return maxId + 1;
     }
 } 

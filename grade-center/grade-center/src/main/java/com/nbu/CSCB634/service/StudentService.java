@@ -57,6 +57,16 @@ public class StudentService {
     public void deleteStudent(Long id) {
         Student student = studentRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Student not found"));
+        // Каскадното изтриване ще се случи автоматично чрез JPA
         studentRepository.delete(student);
+    }
+
+    public Long getNextAvailableId() {
+        List<Student> allStudents = studentRepository.findAll();
+        Long maxId = allStudents.stream()
+                .mapToLong(Student::getId)
+                .max()
+                .orElse(0L);
+        return maxId + 1;
     }
 }

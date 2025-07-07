@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 
+import java.util.List;
+
 @Entity
 @Getter
 @Setter
@@ -26,4 +28,8 @@ public class SchoolClass {
     @ManyToOne
     @JoinColumn(name = "school_id")
     private School school;
+
+    // Връзка с учениците в този клас
+    @OneToMany(mappedBy = "schoolClass", fetch = FetchType.LAZY)
+    private List<Student> students;
 }

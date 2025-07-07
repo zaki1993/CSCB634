@@ -69,6 +69,10 @@ public class UserService {
         return userRepository.save(user);
     }
 
+    public boolean existsByEmail(String email) {
+        return userRepository.existsByEmail(email);
+    }
+
     public Long getNextAvailableId() {
         // Намери следващото свободно ID
         List<User> users = userRepository.findAll();

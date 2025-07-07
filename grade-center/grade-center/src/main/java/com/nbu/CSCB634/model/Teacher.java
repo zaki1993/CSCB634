@@ -7,6 +7,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -19,7 +20,7 @@ public class Teacher {
     @Id
     private Long id;  // Same as User.id
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.REMOVE)
     @MapsId
     @JoinColumn(name = "id")
     private User user;
@@ -35,4 +36,12 @@ public class Teacher {
             inverseJoinColumns = @JoinColumn(name = "subject_id")
     )
     private Set<Subject> qualifiedSubjects;
+
+    // Каскадно изтриване на оценки дадени от този учител
+    @OneToMany(mappedBy = "teacher", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<Grade> grades;
+
+    // Каскадно изтриване на отсъствия отбелязани от този учител
+    @OneToMany(mappedBy = "teacher", cascade = CascadeType.REMOVE, orphanRemoval = true)
+    private List<Absence> absences;
 }

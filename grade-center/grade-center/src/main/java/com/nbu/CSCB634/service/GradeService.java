@@ -1,5 +1,6 @@
 package com.nbu.CSCB634.service;
 
+import com.nbu.CSCB634.config.DatabaseSequenceSync;
 import com.nbu.CSCB634.model.Grade;
 import com.nbu.CSCB634.model.Parent;
 import com.nbu.CSCB634.model.Student;
@@ -10,6 +11,7 @@ import com.nbu.CSCB634.repository.StudentRepository;
 import com.nbu.CSCB634.repository.TeacherRepository;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
@@ -19,16 +21,50 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class GradeService {
 
     private final GradeRepository gradeRepository;
     private final StudentRepository studentRepository;
     private final TeacherRepository teacherRepository;
     private final ParentRepository parentRepository;
+    private final DatabaseSequenceSync sequenceSync;
 
     @PreAuthorize("hasRole('TEACHER')")
     public Grade createGrade(@Valid Grade grade) {
-        return gradeRepository.save(grade);
+        try {
+            // Първи опит - нормално запазване с auto-increment
+            return gradeRepository.save(grade);
+        } catch (Exception e) {
+            // Ако има проблем с sequence, синхронизираме го и опитваме отново
+            if (e.getMessage().contains("duplicate key") || e.getMessage().contains("already exists")) {
+                log.warn("Открит конфликт с grade ID, синхронизираме sequence и опитваме отново");
+                
+                try {
+                    // Синхронизираме grade sequence с текущите данни
+                    sequenceSync.syncGradeSequence();
+                    
+                    // Създаваме нова оценка без ID (за да се генерира автоматично)
+                    Grade newGrade = Grade.builder()
+                            .value(grade.getValue())
+                            .dateAwarded(grade.getDateAwarded())
+                            .student(grade.getStudent())
+                            .teacher(grade.getTeacher())
+                            .subject(grade.getSubject())
+                            .build();
+                    
+                    // Втори опит със синхронизиран sequence
+                    return gradeRepository.save(newGrade);
+                    
+                } catch (Exception retryException) {
+                    log.error("Неуспешен втори опит за създаване на оценка: {}", retryException.getMessage());
+                    // Ако и втория опит не успее, хвърляме оригиналната грешка
+                    throw new RuntimeException("Неуспешно създаване на оценка: " + e.getMessage(), e);
+                }
+            }
+            // Ако не е sequence проблем, хвърляме оригиналната грешка
+            throw e;
+        }
     }
 
     @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'DIRECTOR', 'TEACHER', 'PARENT', 'STUDENT')")
@@ -145,5 +181,17 @@ public class GradeService {
         return parent.getStudents() != null ? 
                 parent.getStudents().stream().collect(Collectors.toList()) : 
                 List.of();
+    }
+
+    /**
+     * Получава следващото налично ID за оценка (backup метод)
+     */
+    public Long getNextAvailableId() {
+        List<Grade> allGrades = gradeRepository.findAll();
+        Long maxId = allGrades.stream()
+                .mapToLong(Grade::getId)
+                .max()
+                .orElse(0L);
+        return maxId + 1;
     }
 }

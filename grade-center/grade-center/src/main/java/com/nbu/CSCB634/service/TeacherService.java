@@ -56,6 +56,16 @@ public class TeacherService {
     public void deleteTeacher(Long id) {
         Teacher teacher = teacherRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Teacher not found"));
+        // Каскадното изтриване ще се случи автоматично чрез JPA
         teacherRepository.delete(teacher);
+    }
+
+    public Long getNextAvailableId() {
+        List<Teacher> allTeachers = teacherRepository.findAll();
+        Long maxId = allTeachers.stream()
+                .mapToLong(Teacher::getId)
+                .max()
+                .orElse(0L);
+        return maxId + 1;
     }
 }

@@ -17,7 +17,7 @@ public class Director {
     @Id
     private Long id;  // Same as User.id
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.REMOVE)
     @MapsId
     @JoinColumn(name = "id")
     private User user;

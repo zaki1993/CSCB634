@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Смяна на роля</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="/css/styles.css" rel="stylesheet">
+</head>
+<body>
+    <div th:replace="~{header :: header}"></div>
+    
+    <div class="container mt-4">
+        <div class="row justify-content-center">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header bg-warning text-dark">
+                        <h4 class="mb-0">
+                            <i class="fas fa-user-cog"></i> Смяна на роля
+                        </h4>
+                    </div>
+                    <div class="card-body">
+                        <!-- Информация за потребителя -->
+                        <div class="row mb-4">
+                            <div class="col-md-6">
+                                <div class="card bg-light">
+                                    <div class="card-body">
+                                        <h6 class="card-title">Информация за потребителя</h6>
+                                        <p><strong>Потребителско име:</strong> <span th:text="${user.username}"></span></p>
+                                        <p><strong>Име:</strong> <span th:text="${user.firstName + ' ' + user.lastName}"></span></p>
+                                        <p><strong>Имейл:</strong> <span th:text="${user.email}"></span></p>
+                                        <p><strong>Текуща роля:</strong> 
+                                            <span th:text="${user.role}" 
+                                                  th:class="'badge ' + (${user.role == T(com.nbu.CSCB634.model.Role).ADMINISTRATOR} ? 'bg-danger' : 
+                                                           (${user.role == T(com.nbu.CSCB634.model.Role).DIRECTOR} ? 'bg-warning text-dark' : 
+                                                           (${user.role == T(com.nbu.CSCB634.model.Role).TEACHER} ? 'bg-success' : 
+                                                           (${user.role == T(com.nbu.CSCB634.model.Role).PARENT} ? 'bg-info' : 'bg-primary'))))"></span>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card bg-light">
+                                    <div class="card-body">
+                                        <h6 class="card-title">Текуща роля детайли</h6>
+                                        <div th:if="${roleInfo.schoolName != null}">
+                                            <p><strong>Училище:</strong> <span th:text="${roleInfo.schoolName}"></span></p>
+                                        </div>
+                                        <div th:if="${roleInfo.className != null}">
+                                            <p><strong>Клас:</strong> <span th:text="${roleInfo.className}"></span></p>
+                                        </div>
+                                        <div th:if="${roleInfo.subjectCount != null}">
+                                            <p><strong>Предмети:</strong> <span th:text="${roleInfo.subjectCount}"></span></p>
+                                        </div>
+                                        <div th:if="${roleInfo.gradeCount != null}">
+                                            <p><strong>Оценки:</strong> <span th:text="${roleInfo.gradeCount}"></span></p>
+                                        </div>
+                                        <div th:if="${roleInfo.absenceCount != null}">
+                                            <p><strong>Отсъствия:</strong> <span th:text="${roleInfo.absenceCount}"></span></p>
+                                        </div>
+                                        <div th:if="${roleInfo.parentCount != null}">
+                                            <p><strong>Родители:</strong> <span th:text="${roleInfo.parentCount}"></span></p>
+                                        </div>
+                                        <div th:if="${roleInfo.studentCount != null}">
+                                            <p><strong>Деца:</strong> <span th:text="${roleInfo.studentCount}"></span></p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Форма за смяна на роля -->
+                        <form id="roleChangeForm" th:action="@{/admin/role-change/{userId}/execute(userId=${user.id})}" method="post">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <div class="mb-3">
+                                        <label for="newRole" class="form-label">Нова роля <span class="text-danger">*</span></label>
+                                        <select class="form-select" id="newRole" name="newRole" onchange="onRoleChange()" required>
+                                            <option value="">Избери нова роля</option>
+                                            <option th:each="role : ${availableRoles}" 
+                                                    th:value="${role}" 
+                                                    th:text="${role}"
+                                                    th:disabled="${role == user.role}">
+                                            </option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mb-3" id="schoolSection" style="display: none;">
+                                        <label for="schoolId" class="form-label">Училище <span class="text-danger">*</span></label>
+                                        <select class="form-select" id="schoolId" name="schoolId">
+                                            <option value="">Избери училище</option>
+                                            <option th:each="school : ${schools}" 
+                                                    th:value="${school.id}" 
+                                                    th:text="${school.name}">
+                                            </option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Валидационни съобщения -->
+                            <div id="validationResults" class="mb-3" style="display: none;">
+                                <div id="validationErrors" class="alert alert-danger" style="display: none;">
+                                    <h6><i class="fas fa-exclamation-triangle"></i> Грешки:</h6>
+                                    <ul id="errorList"></ul>
+                                </div>
+                                <div id="validationWarnings" class="alert alert-warning" style="display: none;">
+                                    <h6><i class="fas fa-exclamation-circle"></i> Предупреждения:</h6>
+                                    <ul id="warningList"></ul>
+                                    <p class="mb-0 small"><strong>Забележка:</strong> Тези данни ще бъдат изтрити при смяна на ролята!</p>
+                                </div>
+                            </div>
+
+                            <!-- Потвърждение -->
+                            <div id="confirmationSection" class="mb-3" style="display: none;">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" id="confirmChange" required>
+                                    <label class="form-check-label" for="confirmChange">
+                                        Потвърждавам, че искам да сменя ролята на този потребител и разбирам 
+                                        последиците от тази операция.
+                                    </label>
+                                </div>
+                            </div>
+
+                            <!-- Бутони -->
+                            <div class="d-flex justify-content-between">
+                                <a th:href="@{/admin/users}" class="btn btn-secondary">
+                                    <i class="fas fa-arrow-left"></i> Назад
+                                </a>
+                                <button type="submit" class="btn btn-warning" id="submitButton" disabled>
+                                    <i class="fas fa-exchange-alt"></i> Смени ролята
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Помощна информация -->
+                <div class="card mt-4">
+                    <div class="card-header bg-info text-white">
+                        <h6 class="mb-0">Важна информация</h6>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h6>Роли, които изискват училище:</h6>
+                                <ul>
+                                    <li>Директор</li>
+                                    <li>Учител</li>
+                                    <li>Ученик</li>
+                                </ul>
+                            </div>
+                            <div class="col-md-6">
+                                <h6>Данни, които се запазват:</h6>
+                                <ul>
+                                    <li>Потребителско име и парола</li>
+                                    <li>Лично име и имейл</li>
+                                    <li>Основна потребителска информация</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="row mt-3">
+                            <div class="col-12">
+                                <h6 class="text-danger">Данни, които се изтриват:</h6>
+                                <ul>
+                                    <li><strong>Учител:</strong> Оценки, отсъствия, предмети</li>
+                                    <li><strong>Ученик:</strong> Оценки, отсъствия, връзки с родители, клас</li>
+                                    <li><strong>Родител:</strong> Връзки с децата</li>
+                                    <li><strong>Директор:</strong> Връзка с училище</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        const currentUserId = [[${user.id}]];
+        
+        function onRoleChange() {
+            const newRole = document.getElementById('newRole').value;
+            const schoolSection = document.getElementById('schoolSection');
+            const validationResults = document.getElementById('validationResults');
+            const confirmationSection = document.getElementById('confirmationSection');
+            const submitButton = document.getElementById('submitButton');
+            
+            // Изчисти предишните резултати
+            validationResults.style.display = 'none';
+            confirmationSection.style.display = 'none';
+            submitButton.disabled = true;
+            
+            if (!newRole) {
+                schoolSection.style.display = 'none';
+                return;
+            }
+            
+            // Покажи училище поле за определени роли
+            if (newRole === 'DIRECTOR' || newRole === 'TEACHER' || newRole === 'STUDENT') {
+                schoolSection.style.display = 'block';
+                document.getElementById('schoolId').required = true;
+            } else {
+                schoolSection.style.display = 'none';
+                document.getElementById('schoolId').required = false;
+            }
+            
+            // Валидация на смяната
+            validateRoleChange();
+        }
+        
+        function validateRoleChange() {
+            const newRole = document.getElementById('newRole').value;
+            const schoolId = document.getElementById('schoolId').value;
+            
+            if (!newRole) return;
+            
+            // Ако е нужно училище, но не е избрано
+            if ((newRole === 'DIRECTOR' || newRole === 'TEACHER' || newRole === 'STUDENT') && !schoolId) {
+                return; // Чакай потребителят да избере училище
+            }
+            
+            fetch(`/admin/role-change/${currentUserId}/validate`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `newRole=${newRole}&schoolId=${schoolId || ''}`
+            })
+            .then(response => response.json())
+            .then(validation => {
+                displayValidationResults(validation);
+            })
+            .catch(error => {
+                console.error('Грешка при валидация:', error);
+            });
+        }
+        
+        function displayValidationResults(validation) {
+            const validationResults = document.getElementById('validationResults');
+            const validationErrors = document.getElementById('validationErrors');
+            const validationWarnings = document.getElementById('validationWarnings');
+            const errorList = document.getElementById('errorList');
+            const warningList = document.getElementById('warningList');
+            const confirmationSection = document.getElementById('confirmationSection');
+            const submitButton = document.getElementById('submitButton');
+            
+            // Изчисти предишните резултати
+            errorList.innerHTML = '';
+            warningList.innerHTML = '';
+            validationErrors.style.display = 'none';
+            validationWarnings.style.display = 'none';
+            
+            if (validation.errors && validation.errors.length > 0) {
+                validation.errors.forEach(error => {
+                    const li = document.createElement('li');
+                    li.textContent = error;
+                    errorList.appendChild(li);
+                });
+                validationErrors.style.display = 'block';
+            }
+            
+            if (validation.warnings && validation.warnings.length > 0) {
+                validation.warnings.forEach(warning => {
+                    const li = document.createElement('li');
+                    li.textContent = warning;
+                    warningList.appendChild(li);
+                });
+                validationWarnings.style.display = 'block';
+            }
+            
+            if (validation.errors.length > 0 || validation.warnings.length > 0) {
+                validationResults.style.display = 'block';
+            }
+            
+            if (validation.valid) {
+                confirmationSection.style.display = 'block';
+                submitButton.disabled = false;
+            } else {
+                confirmationSection.style.display = 'none';
+                submitButton.disabled = true;
+            }
+        }
+        
+        // Добавяне на event listener за училище dropdown
+        document.getElementById('schoolId').addEventListener('change', validateRoleChange);
+        
+        // Добавяне на event listener за потвърждение checkbox
+        document.getElementById('confirmChange').addEventListener('change', function() {
+            const submitButton = document.getElementById('submitButton');
+            submitButton.disabled = !this.checked;
+        });
+    </script>
+</body>
+</html> 

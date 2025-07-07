@@ -24,6 +24,8 @@ public class DatabaseSequenceSync implements CommandLineRunner {
             syncSequence("subject_id_seq", "subject");
             syncSequence("grade_center_users_id_seq", "grade_center_users");
             syncSequence("academicterm_id_seq", "academicterm");
+            syncSequence("grade_id_seq", "grade");
+            syncSequence("absence_id_seq", "absence");
             
             log.info("Sequence-овете са синхронизирани успешно!");
             
@@ -33,7 +35,10 @@ public class DatabaseSequenceSync implements CommandLineRunner {
         }
     }
 
-    private void syncSequence(String sequenceName, String tableName) {
+    /**
+     * Синхронизира конкретен sequence - може да се извика runtime
+     */
+    public void syncSequence(String sequenceName, String tableName) {
         try {
             String sql = "SELECT setval('" + sequenceName + "', COALESCE((SELECT MAX(id) FROM " + tableName + "), 1), true)";
             Long newValue = jdbcTemplate.queryForObject(sql, Long.class);
@@ -41,5 +46,32 @@ public class DatabaseSequenceSync implements CommandLineRunner {
         } catch (Exception e) {
             log.warn("Не може да се синхронизира sequence {}: {}", sequenceName, e.getMessage());
         }
+    }
+
+    /**
+     * Синхронизира absence sequence - специален метод за absence таблицата
+     */
+    public void syncAbsenceSequence() {
+        syncSequence("absence_id_seq", "absence");
+    }
+
+    /**
+     * Синхронизира grade sequence - специален метод за grade таблицата
+     */
+    public void syncGradeSequence() {
+        syncSequence("grade_id_seq", "grade");
+    }
+
+    /**
+     * Синхронизира всички основни sequences
+     */
+    public void syncAllSequences() {
+        syncSequence("school_id_seq", "school");
+        syncSequence("schoolclass_id_seq", "schoolclass");
+        syncSequence("subject_id_seq", "subject");
+        syncSequence("grade_center_users_id_seq", "grade_center_users");
+        syncSequence("academicterm_id_seq", "academicterm");
+        syncSequence("grade_id_seq", "grade");
+        syncSequence("absence_id_seq", "absence");
     }
 } 
