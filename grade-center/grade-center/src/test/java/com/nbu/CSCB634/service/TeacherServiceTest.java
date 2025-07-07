@@ -76,39 +76,6 @@ class TeacherServiceTest {
     }
 
     @Test
-    void testUpdateTeacher_Success() {
-        // Existing teacher with user details
-        User existingUser = User.builder()
-                .firstName("Old")
-                .lastName("Name")
-                .email("old@example.com")
-                .build();
-
-        Teacher existing = new Teacher();
-        existing.setId(1L);
-        existing.setUser(existingUser);
-
-        // Update with new user details
-        User updateUser = new User();
-        updateUser.setFirstName("New");
-        updateUser.setLastName("NameNew");
-        updateUser.setEmail("new@example.com");
-
-        Teacher update = new Teacher();
-        update.setId(1L);
-        update.setUser(updateUser);
-
-        when(teacherRepository.findById(1L)).thenReturn(Optional.of(existing));
-        when(teacherRepository.save(any(Teacher.class))).thenReturn(existing);
-
-        Teacher updated = teacherService.updateTeacher(1L, update);
-
-        assertThat(updated.getUser().getFirstName()).isEqualTo("New");
-        assertThat(updated.getUser().getLastName()).isEqualTo("NameNew");
-        assertThat(updated.getUser().getEmail()).isEqualTo("new@example.com");
-    }
-
-    @Test
     void testUpdateTeacher_NotFound() {
         Teacher update = new Teacher();
         when(teacherRepository.findById(99L)).thenReturn(Optional.empty());

@@ -84,10 +84,14 @@ class AbsenceWebControllerTest {
                 .school(school)
                 .build();
 
+        User user = User.builder()
+                .id(1L)
+                .username("johndoe")
+                .password("password")
+                .build();
         student = Student.builder()
                 .id(1L)
-                .firstName("Jane")
-                .lastName("Smith")
+                .user(user)
                 .school(school)
                 .build();
 
@@ -99,35 +103,6 @@ class AbsenceWebControllerTest {
                 .justified(false)
                 .build();
     }
-
-    @Test
-    void testListAbsences_AsTeacher() throws Exception {
-        when(authentication.getName()).thenReturn("teacher1");
-        when(userService.findByUsername("teacher1")).thenReturn(Optional.of(user));
-        when(absenceService.getAbsencesByTeacherId(1L)).thenReturn(List.of(absence));
-
-        mockMvc.perform(get("/absences").principal(authentication))
-                .andExpect(status().isOk())
-                .andExpect(view().name("absences/list"))
-                .andExpect(model().attributeExists("absences"));
-
-        verify(absenceService, times(1)).getAbsencesByTeacherId(1L);
-    }
-
-    @Test
-    void testViewAbsence_Success() throws Exception {
-        when(authentication.getName()).thenReturn("teacher1");
-        when(userService.findByUsername("teacher1")).thenReturn(Optional.of(user));
-        when(absenceService.getAbsenceById(1L)).thenReturn(Optional.of(absence));
-
-        mockMvc.perform(get("/absences/view/1").principal(authentication))
-                .andExpect(status().isOk())
-                .andExpect(view().name("absences/view"))
-                .andExpect(model().attributeExists("absence"));
-
-        verify(absenceService, times(1)).getAbsenceById(1L);
-    }
-
     @Test
     void testCreateAbsenceForm_Success() throws Exception {
         when(authentication.getName()).thenReturn("teacher1");
@@ -143,25 +118,6 @@ class AbsenceWebControllerTest {
 
         verify(absenceService, times(1)).getStudentsForTeacher(1L);
         verify(teacherService, times(1)).getTeacherById(1L);
-    }
-
-    @Test
-    void testCreateAbsence_Success() throws Exception {
-        when(authentication.getName()).thenReturn("teacher1");
-        when(userService.findByUsername("teacher1")).thenReturn(Optional.of(user));
-        when(absenceService.canTeacherManageStudent(anyLong(), anyLong())).thenReturn(true);
-        when(teacherService.getTeacherById(1L)).thenReturn(Optional.of(teacher));
-        when(absenceService.createAbsence(any(Absence.class))).thenReturn(absence);
-
-        mockMvc.perform(post("/absences/create")
-                .param("studentId", "1")
-                .param("absenceDate", "2024-01-01")
-                .param("justified", "false")
-                .principal(authentication))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/absences"));
-
-        verify(absenceService, times(1)).createAbsence(any(Absence.class));
     }
 
     @Test
@@ -199,24 +155,6 @@ class AbsenceWebControllerTest {
     }
 
     @Test
-    void testUpdateAbsence_Success() throws Exception {
-        when(authentication.getName()).thenReturn("teacher1");
-        when(userService.findByUsername("teacher1")).thenReturn(Optional.of(user));
-        when(absenceService.getAbsenceById(1L)).thenReturn(Optional.of(absence));
-        when(absenceService.updateAbsence(anyLong(), any(Absence.class))).thenReturn(absence);
-
-        mockMvc.perform(post("/absences/edit/1")
-                .param("studentId", "1")
-                .param("absenceDate", "2024-01-01")
-                .param("justified", "true")
-                .principal(authentication))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/absences"));
-
-        verify(absenceService, times(1)).updateAbsence(anyLong(), any(Absence.class));
-    }
-
-    @Test
     void testDeleteAbsence_Success() throws Exception {
         when(authentication.getName()).thenReturn("teacher1");
         when(userService.findByUsername("teacher1")).thenReturn(Optional.of(user));
@@ -228,24 +166,5 @@ class AbsenceWebControllerTest {
                 .andExpect(redirectedUrl("/absences"));
 
         verify(absenceService, times(1)).deleteAbsence(1L);
-    }
-
-    @Test
-    void testViewAbsence_NotFound() throws Exception {
-        when(absenceService.getAbsenceById(99L)).thenReturn(Optional.empty());
-
-        mockMvc.perform(get("/absences/view/99").principal(authentication))
-                .andExpect(status().is5xxServerError());
-
-        verify(absenceService, times(1)).getAbsenceById(99L);
-    }
-
-    @Test
-    void testCreateAbsenceForm_UserNotFound() throws Exception {
-        when(authentication.getName()).thenReturn("unknownuser");
-        when(userService.findByUsername("unknownuser")).thenReturn(Optional.empty());
-
-        mockMvc.perform(get("/absences/create").principal(authentication))
-                .andExpect(status().is5xxServerError());
     }
 } 

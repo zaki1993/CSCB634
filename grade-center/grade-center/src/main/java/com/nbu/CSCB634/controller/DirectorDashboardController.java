@@ -274,7 +274,7 @@ public class DirectorDashboardController {
         }
     }
 
-    private double calculateAverageGrade(List<Grade> grades) {
+    double calculateAverageGrade(List<Grade> grades) {
         if (grades == null || grades.isEmpty()) return 0.0;
         return grades.stream()
                 .mapToDouble(Grade::getValue)
@@ -282,7 +282,7 @@ public class DirectorDashboardController {
                 .orElse(0.0);
     }
 
-    private Map<Integer, Long> calculateGradeDistribution(List<Grade> grades) {
+    Map<Integer, Long> calculateGradeDistribution(List<Grade> grades) {
         if (grades == null || grades.isEmpty()) {
             return new java.util.HashMap<>();
         }

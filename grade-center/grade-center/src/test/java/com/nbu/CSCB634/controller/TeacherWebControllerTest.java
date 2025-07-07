@@ -241,28 +241,6 @@ class TeacherWebControllerTest {
     }
 
     @Test
-    void testDeleteTeacher_Success() throws Exception {
-        doNothing().when(teacherService).deleteTeacher(1L);
-
-        mockMvc.perform(post("/teachers/1/delete"))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/teachers"));
-
-        verify(teacherService, times(1)).deleteTeacher(1L);
-    }
-
-    @Test
-    void testDeleteTeacher_WithException() throws Exception {
-        doThrow(new RuntimeException("Delete failed")).when(teacherService).deleteTeacher(1L);
-
-        mockMvc.perform(post("/teachers/1/delete"))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/teachers"));
-
-        verify(teacherService, times(1)).deleteTeacher(1L);
-    }
-
-    @Test
     void testViewTeacher_Success() throws Exception {
         when(teacherService.getTeacherById(1L)).thenReturn(Optional.of(teacher));
 

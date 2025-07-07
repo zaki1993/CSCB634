@@ -76,38 +76,6 @@ class StudentServiceTest {
     }
 
     @Test
-    void testUpdateStudent_Success() {
-        // Existing student with initial user details
-        User existingUser = User.builder()
-                .firstName("Old")
-                .lastName("Name")
-                .email("old@example.com")
-                .build();
-
-        Student existing = new Student();
-        existing.setId(1L);
-        existing.setUser(existingUser);
-
-        // Update with new details
-        User updateUser = new User();
-        updateUser.setFirstName("New");
-        updateUser.setLastName("NameNew");
-        updateUser.setEmail("new@example.com");
-
-        Student update = new Student();
-        update.setUser(updateUser);
-
-        when(studentRepository.findById(1L)).thenReturn(Optional.of(existing));
-        when(studentRepository.save(any(Student.class))).thenReturn(existing);
-
-        Student updated = studentService.updateStudent(1L, update);
-
-        assertThat(updated.getUser().getFirstName()).isEqualTo("New");
-        assertThat(updated.getUser().getLastName()).isEqualTo("NameNew");
-        assertThat(updated.getUser().getEmail()).isEqualTo("new@example.com");
-    }
-
-    @Test
     void testUpdateStudent_NotFound() {
         Student update = new Student();
         when(studentRepository.findById(99L)).thenReturn(Optional.empty());

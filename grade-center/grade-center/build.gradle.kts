@@ -54,6 +54,7 @@ dependencies {
 
     // Spring Test dependencies for mocking and other utilities
     testImplementation("org.springframework:spring-test")
+    testImplementation("org.springframework.security:spring-security-test")
 }
 tasks.getByName<Test>("test") {
     useJUnitPlatform()

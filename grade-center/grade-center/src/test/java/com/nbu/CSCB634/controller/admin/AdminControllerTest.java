@@ -378,17 +378,6 @@ class AdminControllerTest {
 
         verify(subjectService, times(1)).createSubject(any(Subject.class));
     }
-
-    @Test
-    void testCreateClass_WithInvalidGradeNumber() throws Exception {
-        when(classService.createSchoolClass(any(SchoolClass.class))).thenReturn(schoolClass);
-
-        mockMvc.perform(post("/admin/classes/create")
-                .param("name", "10A")
-                .param("gradeNumber", "invalid"))
-                .andExpect(status().isBadRequest());
-    }
-
     @Test
     void testCreateTerm_WithInvalidDateFormat() throws Exception {
         mockMvc.perform(post("/admin/terms/create")

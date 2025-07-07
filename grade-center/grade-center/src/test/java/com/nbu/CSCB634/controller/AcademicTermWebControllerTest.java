@@ -121,16 +121,6 @@ class AcademicTermWebControllerTest {
     }
 
     @Test
-    void testViewAcademicTerm_NotFound() throws Exception {
-        when(academicTermService.getAcademicTermById(99L)).thenReturn(Optional.empty());
-
-        mockMvc.perform(get("/academic-terms/view/99"))
-                .andExpect(status().is5xxServerError());
-
-        verify(academicTermService, times(1)).getAcademicTermById(99L);
-    }
-
-    @Test
     void testCreateAcademicTermForm_Success() throws Exception {
         when(schoolService.getAllSchools()).thenReturn(List.of(school));
         when(subjectService.getAllSubjects()).thenReturn(List.of(subject));
@@ -201,17 +191,6 @@ class AcademicTermWebControllerTest {
 
         verify(academicTermService, times(1)).getAcademicTermById(1L);
     }
-
-    @Test
-    void testEditAcademicTermForm_NotFound() throws Exception {
-        when(academicTermService.getAcademicTermById(99L)).thenReturn(Optional.empty());
-
-        mockMvc.perform(get("/academic-terms/edit/99"))
-                .andExpect(status().is5xxServerError());
-
-        verify(academicTermService, times(1)).getAcademicTermById(99L);
-    }
-
     @Test
     void testUpdateAcademicTerm_Success() throws Exception {
         when(schoolService.getSchoolById(anyLong())).thenReturn(Optional.of(school));

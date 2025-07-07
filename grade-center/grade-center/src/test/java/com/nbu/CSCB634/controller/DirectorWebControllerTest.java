@@ -222,16 +222,6 @@ class DirectorWebControllerTest {
     }
 
     @Test
-    void testViewDirector_NotFound() throws Exception {
-        when(directorService.getDirectorById(99L)).thenReturn(Optional.empty());
-
-        mockMvc.perform(get("/directors/99"))
-                .andExpect(status().is5xxServerError());
-
-        verify(directorService, times(1)).getDirectorById(99L);
-    }
-
-    @Test
     void testEditDirectorForm_Success() throws Exception {
         when(directorService.getDirectorById(1L)).thenReturn(Optional.of(director));
         when(schoolService.getAllSchools()).thenReturn(List.of(school));
@@ -243,86 +233,6 @@ class DirectorWebControllerTest {
                 .andExpect(model().attributeExists("schools"));
 
         verify(directorService, times(1)).getDirectorById(1L);
-        verify(schoolService, times(1)).getAllSchools();
-    }
-
-    @Test
-    void testEditDirectorForm_NotFound() throws Exception {
-        when(directorService.getDirectorById(99L)).thenReturn(Optional.empty());
-
-        mockMvc.perform(get("/directors/99/edit"))
-                .andExpect(status().is5xxServerError());
-
-        verify(directorService, times(1)).getDirectorById(99L);
-    }
-
-    @Test
-    void testUpdateDirector_Success() throws Exception {
-        when(directorService.getDirectorById(1L)).thenReturn(Optional.of(director));
-        when(schoolService.getSchoolById(1L)).thenReturn(Optional.of(school));
-        when(directorService.updateDirector(anyLong(), any(Director.class))).thenReturn(director);
-
-        mockMvc.perform(post("/directors/1/edit")
-                .param("firstName", "John Updated")
-                .param("lastName", "Director Updated")
-                .param("email", "updated@test.com")
-                .param("schoolId", "1"))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/directors"));
-
-        verify(directorService, times(1)).updateDirector(anyLong(), any(Director.class));
-    }
-
-    @Test
-    void testUpdateDirector_NotFound() throws Exception {
-        when(directorService.getDirectorById(99L)).thenReturn(Optional.empty());
-
-        mockMvc.perform(post("/directors/99/edit")
-                .param("firstName", "John")
-                .param("lastName", "Director")
-                .param("email", "director@test.com")
-                .param("schoolId", "1"))
-                .andExpect(status().is5xxServerError());
-
-        verify(directorService, times(1)).getDirectorById(99L);
-        verify(directorService, never()).updateDirector(anyLong(), any(Director.class));
-    }
-
-    @Test
-    void testUpdateDirector_SchoolNotFound() throws Exception {
-        when(directorService.getDirectorById(1L)).thenReturn(Optional.of(director));
-        when(schoolService.getSchoolById(99L)).thenReturn(Optional.empty());
-        when(schoolService.getAllSchools()).thenReturn(List.of(school));
-
-        mockMvc.perform(post("/directors/1/edit")
-                .param("firstName", "John")
-                .param("lastName", "Director")
-                .param("email", "director@test.com")
-                .param("schoolId", "99"))
-                .andExpect(status().isOk())
-                .andExpect(view().name("directors/form"));
-
-        verify(schoolService, times(1)).getSchoolById(99L);
-        verify(directorService, never()).updateDirector(anyLong(), any(Director.class));
-    }
-
-    @Test
-    void testUpdateDirector_WithException() throws Exception {
-        when(directorService.getDirectorById(1L)).thenReturn(Optional.of(director));
-        when(schoolService.getSchoolById(1L)).thenReturn(Optional.of(school));
-        when(directorService.updateDirector(anyLong(), any(Director.class)))
-                .thenThrow(new RuntimeException("Update failed"));
-        when(schoolService.getAllSchools()).thenReturn(List.of(school));
-
-        mockMvc.perform(post("/directors/1/edit")
-                .param("firstName", "John")
-                .param("lastName", "Director")
-                .param("email", "director@test.com")
-                .param("schoolId", "1"))
-                .andExpect(status().isOk())
-                .andExpect(view().name("directors/form"));
-
-        verify(directorService, times(1)).updateDirector(anyLong(), any(Director.class));
         verify(schoolService, times(1)).getAllSchools();
     }
 

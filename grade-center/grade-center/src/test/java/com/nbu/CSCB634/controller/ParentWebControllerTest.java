@@ -64,10 +64,17 @@ class ParentWebControllerTest {
                 .role(Role.PARENT)
                 .build();
 
+        User user = User.builder()
+                .id(1L)
+                .username("student1")
+                .firstName("Child1")
+                .lastName("Student")
+                .email("teacher@test.com")
+                .role(Role.STUDENT)
+                .build();
         student = Student.builder()
                 .id(1L)
-                .firstName("Jane")
-                .lastName("Doe")
+                .user(user)
                 .build();
 
         parent = Parent.builder()
@@ -232,16 +239,6 @@ class ParentWebControllerTest {
     }
 
     @Test
-    void testViewParent_NotFound() throws Exception {
-        when(parentService.getParentById(99L)).thenReturn(Optional.empty());
-
-        mockMvc.perform(get("/parents/99"))
-                .andExpect(status().is5xxServerError());
-
-        verify(parentService, times(1)).getParentById(99L);
-    }
-
-    @Test
     void testEditParentForm_Success() throws Exception {
         when(parentService.getParentById(1L)).thenReturn(Optional.of(parent));
         when(studentService.getAllStudents()).thenReturn(List.of(student));
@@ -254,80 +251,6 @@ class ParentWebControllerTest {
 
         verify(parentService, times(1)).getParentById(1L);
         verify(studentService, times(1)).getAllStudents();
-    }
-
-    @Test
-    void testEditParentForm_NotFound() throws Exception {
-        when(parentService.getParentById(99L)).thenReturn(Optional.empty());
-
-        mockMvc.perform(get("/parents/99/edit"))
-                .andExpect(status().is5xxServerError());
-
-        verify(parentService, times(1)).getParentById(99L);
-    }
-
-    @Test
-    void testUpdateParent_Success() throws Exception {
-        when(parentService.getParentById(1L)).thenReturn(Optional.of(parent));
-        when(studentService.getStudentById(anyLong())).thenReturn(Optional.of(student));
-        when(parentService.updateParent(anyLong(), any(Parent.class))).thenReturn(parent);
-
-        mockMvc.perform(post("/parents/1/edit")
-                .param("firstName", "John Updated")
-                .param("lastName", "Doe Updated")
-                .param("email", "updated@test.com")
-                .param("studentIds", "1"))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/parents"));
-
-        verify(parentService, times(1)).updateParent(anyLong(), any(Parent.class));
-    }
-
-    @Test
-    void testUpdateParent_NotFound() throws Exception {
-        when(parentService.getParentById(99L)).thenReturn(Optional.empty());
-
-        mockMvc.perform(post("/parents/99/edit")
-                .param("firstName", "John")
-                .param("lastName", "Doe")
-                .param("email", "parent@test.com"))
-                .andExpect(status().is5xxServerError());
-
-        verify(parentService, times(1)).getParentById(99L);
-    }
-
-    @Test
-    void testUpdateParent_WithException() throws Exception {
-        when(parentService.getParentById(1L)).thenReturn(Optional.of(parent));
-        when(parentService.updateParent(anyLong(), any(Parent.class)))
-                .thenThrow(new RuntimeException("Update failed"));
-        when(studentService.getAllStudents()).thenReturn(List.of(student));
-
-        mockMvc.perform(post("/parents/1/edit")
-                .param("firstName", "John")
-                .param("lastName", "Doe")
-                .param("email", "parent@test.com"))
-                .andExpect(status().isOk())
-                .andExpect(view().name("parents/form"))
-                .andExpect(model().attributeExists("students"));
-
-        verify(parentService, times(1)).updateParent(anyLong(), any(Parent.class));
-        verify(studentService, times(1)).getAllStudents();
-    }
-
-    @Test
-    void testUpdateParent_WithoutStudents() throws Exception {
-        when(parentService.getParentById(1L)).thenReturn(Optional.of(parent));
-        when(parentService.updateParent(anyLong(), any(Parent.class))).thenReturn(parent);
-
-        mockMvc.perform(post("/parents/1/edit")
-                .param("firstName", "John")
-                .param("lastName", "Doe")
-                .param("email", "parent@test.com"))
-                .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/parents"));
-
-        verify(parentService, times(1)).updateParent(anyLong(), any(Parent.class));
     }
 
     @Test

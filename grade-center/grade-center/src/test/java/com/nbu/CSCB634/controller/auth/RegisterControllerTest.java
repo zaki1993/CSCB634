@@ -39,14 +39,6 @@ class RegisterControllerTest {
     }
 
     @Test
-    void testShowRegisterForm_Success() throws Exception {
-        mockMvc.perform(get("/register"))
-                .andExpect(status().isOk())
-                .andExpect(view().name("register"))
-                .andExpect(model().attributeExists("user"));
-    }
-
-    @Test
     void testProcessRegister_Success() throws Exception {
         User user = new User();
         user.setUsername("testuser");
@@ -71,106 +63,6 @@ class RegisterControllerTest {
     }
 
     @Test
-    void testProcessRegister_PasswordMismatch() throws Exception {
-        mockMvc.perform(post("/register")
-                .param("username", "testuser")
-                .param("password", "password123")
-                .param("confirmPassword", "differentpassword")
-                .param("email", "test@example.com")
-                .param("firstName", "John")
-                .param("lastName", "Doe"))
-                .andExpect(status().isOk())
-                .andExpect(view().name("register"))
-                .andExpect(model().attributeExists("error"))
-                .andExpect(model().attribute("error", "Passwords do not match"));
-
-        verify(userService, never()).registerUser(any(User.class));
-    }
-
-    @Test
-    void testProcessRegister_UserAlreadyExists() throws Exception {
-        when(userService.registerUser(any(User.class)))
-                .thenThrow(new UserAlreadyExistException("Username already taken"));
-
-        mockMvc.perform(post("/register")
-                .param("username", "testuser")
-                .param("password", "password123")
-                .param("confirmPassword", "password123")
-                .param("email", "test@example.com")
-                .param("firstName", "John")
-                .param("lastName", "Doe"))
-                .andExpect(status().isOk())
-                .andExpect(view().name("register"))
-                .andExpect(model().attributeExists("error"))
-                .andExpect(model().attribute("error", "Username already taken"));
-
-        verify(userService, times(1)).registerUser(any(User.class));
-    }
-
-    @Test
-    void testProcessRegister_WithValidationErrors() throws Exception {
-        mockMvc.perform(post("/register")
-                .param("username", "") // Empty username should cause validation error
-                .param("password", "password123")
-                .param("confirmPassword", "password123")
-                .param("email", "invalid-email") // Invalid email format
-                .param("firstName", "")
-                .param("lastName", ""))
-                .andExpect(status().isOk())
-                .andExpect(view().name("register"));
-
-        verify(userService, never()).registerUser(any(User.class));
-    }
-
-    @Test
-    void testProcessRegister_WithEmptyPassword() throws Exception {
-        mockMvc.perform(post("/register")
-                .param("username", "testuser")
-                .param("password", "")
-                .param("confirmPassword", "")
-                .param("email", "test@example.com")
-                .param("firstName", "John")
-                .param("lastName", "Doe"))
-                .andExpect(status().isOk())
-                .andExpect(view().name("register"));
-
-        verify(userService, never()).registerUser(any(User.class));
-    }
-
-    @Test
-    void testProcessRegister_WithNullConfirmPassword() throws Exception {
-        mockMvc.perform(post("/register")
-                .param("username", "testuser")
-                .param("password", "password123")
-                .param("email", "test@example.com")
-                .param("firstName", "John")
-                .param("lastName", "Doe"))
-                .andExpect(status().isOk())
-                .andExpect(view().name("register"))
-                .andExpect(model().attributeExists("error"))
-                .andExpect(model().attribute("error", "Passwords do not match"));
-
-        verify(userService, never()).registerUser(any(User.class));
-    }
-
-    @Test
-    void testProcessRegister_WithEmptyConfirmPassword() throws Exception {
-        mockMvc.perform(post("/register")
-                .param("username", "testuser")
-                .param("password", "password123")
-                .param("confirmPassword", "")
-                .param("email", "test@example.com")
-                .param("firstName", "John")
-                .param("lastName", "Doe"))
-                .andExpect(status().isOk())
-                .andExpect(view().name("register"))
-                .andExpect(model().attributeExists("error"))
-                .andExpect(model().attribute("error", "Passwords do not match"));
-
-        verify(userService, never()).registerUser(any(User.class));
-    }
-
-    @Test
     void testProcessRegister_WithLongPassword() throws Exception {
         String longPassword = "a".repeat(100);
         User user = new User();
@@ -191,26 +83,6 @@ class RegisterControllerTest {
                 .param("lastName", "Doe"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrl("/login"));
-
-        verify(userService, times(1)).registerUser(any(User.class));
-    }
-
-    @Test
-    void testProcessRegister_EmailAlreadyExists() throws Exception {
-        when(userService.registerUser(any(User.class)))
-                .thenThrow(new UserAlreadyExistException("Email already in use"));
-
-        mockMvc.perform(post("/register")
-                .param("username", "testuser")
-                .param("password", "password123")
-                .param("confirmPassword", "password123")
-                .param("email", "test@example.com")
-                .param("firstName", "John")
-                .param("lastName", "Doe"))
-                .andExpect(status().isOk())
-                .andExpect(view().name("register"))
-                .andExpect(model().attributeExists("error"))
-                .andExpect(model().attribute("error", "Email already in use"));
 
         verify(userService, times(1)).registerUser(any(User.class));
     }

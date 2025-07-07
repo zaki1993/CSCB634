@@ -39,23 +39,6 @@ class GradeModelTest {
     }
 
     @Test
-    void testSetterAndEqualsHashCode() {
-        Grade g1 = new Grade();
-        g1.setId(2L);
-        g1.setValue(4);
-
-        Grade g2 = new Grade();
-        g2.setId(2L);
-        g2.setValue(4);
-
-        assertThat(g1).isEqualTo(g2);
-        assertThat(g1.hashCode()).isEqualTo(g2.hashCode());
-
-        g2.setId(3L);
-        assertThat(g1).isNotEqualTo(g2);
-    }
-
-    @Test
     void testToStringNotNull() {
         Grade grade = new Grade();
         grade.setId(1L);

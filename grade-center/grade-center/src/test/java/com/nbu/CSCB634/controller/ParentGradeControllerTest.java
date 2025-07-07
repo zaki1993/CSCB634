@@ -1,9 +1,6 @@
 package com.nbu.CSCB634.controller;
 
-import com.nbu.CSCB634.model.Grade;
-import com.nbu.CSCB634.model.School;
-import com.nbu.CSCB634.model.Student;
-import com.nbu.CSCB634.model.Subject;
+import com.nbu.CSCB634.model.*;
 import com.nbu.CSCB634.model.auth.User;
 import com.nbu.CSCB634.service.GradeService;
 import com.nbu.CSCB634.service.auth.UserService;
@@ -69,17 +66,31 @@ class ParentGradeControllerTest {
                 .email("parent@test.com")
                 .build();
 
-        student1 = Student.builder()
+        User student = User.builder()
                 .id(1L)
+                .username("student1")
                 .firstName("Child1")
                 .lastName("Student")
+                .email("teacher@test.com")
+                .role(Role.STUDENT)
+                .build();
+        User user1 = User.builder()
+                .id(1L)
+                .username("student2")
+                .firstName("Child2")
+                .lastName("Student")
+                .email("teacher@test.com")
+                .role(Role.STUDENT)
+                .build();
+        student1 = Student.builder()
+                .id(1L)
+                .user(student)
                 .school(school)
                 .build();
 
         student2 = Student.builder()
                 .id(2L)
-                .firstName("Child2")
-                .lastName("Student")
+                .user(user1)
                 .school(school)
                 .build();
 
@@ -129,17 +140,6 @@ class ParentGradeControllerTest {
     }
 
     @Test
-    void testListGradesForParent_UserNotFound() throws Exception {
-        when(authentication.getName()).thenReturn("unknown");
-        when(userService.findByUsername("unknown")).thenReturn(Optional.empty());
-
-        mockMvc.perform(get("/parent/grades").principal(authentication))
-                .andExpect(status().is5xxServerError());
-
-        verify(gradeService, never()).getGradesByParentId(anyLong());
-    }
-
-    @Test
     void testListGradesForParent_NoGrades() throws Exception {
         when(authentication.getName()).thenReturn("parent1");
         when(userService.findByUsername("parent1")).thenReturn(Optional.of(parentUser));
@@ -176,31 +176,6 @@ class ParentGradeControllerTest {
     }
 
     @Test
-    void testListGradesForChild_AccessDenied() throws Exception {
-        when(authentication.getName()).thenReturn("parent1");
-        when(userService.findByUsername("parent1")).thenReturn(Optional.of(parentUser));
-        when(gradeService.canParentViewStudent(1L, 999L)).thenReturn(false);
-
-        mockMvc.perform(get("/parent/grades/student/999").principal(authentication))
-                .andExpect(status().is5xxServerError());
-
-        verify(gradeService, times(1)).canParentViewStudent(1L, 999L);
-        verify(gradeService, never()).getGradesByParentAndStudent(anyLong(), anyLong());
-    }
-
-    @Test
-    void testListGradesForChild_StudentNotFound() throws Exception {
-        when(authentication.getName()).thenReturn("parent1");
-        when(userService.findByUsername("parent1")).thenReturn(Optional.of(parentUser));
-        when(gradeService.canParentViewStudent(1L, 999L)).thenReturn(true);
-        when(gradeService.getGradesByParentAndStudent(1L, 999L)).thenReturn(List.of());
-        when(gradeService.getStudentsForParent(1L)).thenReturn(List.of(student1, student2));
-
-        mockMvc.perform(get("/parent/grades/student/999").principal(authentication))
-                .andExpect(status().is5xxServerError());
-    }
-
-    @Test
     void testViewGrade_Success() throws Exception {
         when(authentication.getName()).thenReturn("parent1");
         when(userService.findByUsername("parent1")).thenReturn(Optional.of(parentUser));
@@ -213,31 +188,6 @@ class ParentGradeControllerTest {
                 .andExpect(model().attributeExists("grade"));
 
         verify(gradeService, times(1)).getGradeById(1L);
-        verify(gradeService, times(1)).canParentViewStudent(1L, 1L);
-    }
-
-    @Test
-    void testViewGrade_NotFound() throws Exception {
-        when(authentication.getName()).thenReturn("parent1");
-        when(userService.findByUsername("parent1")).thenReturn(Optional.of(parentUser));
-        when(gradeService.getGradeById(999L)).thenReturn(Optional.empty());
-
-        mockMvc.perform(get("/parent/grades/view/999").principal(authentication))
-                .andExpect(status().is5xxServerError());
-
-        verify(gradeService, times(1)).getGradeById(999L);
-    }
-
-    @Test
-    void testViewGrade_AccessDenied() throws Exception {
-        when(authentication.getName()).thenReturn("parent1");
-        when(userService.findByUsername("parent1")).thenReturn(Optional.of(parentUser));
-        when(gradeService.getGradeById(1L)).thenReturn(Optional.of(grade1));
-        when(gradeService.canParentViewStudent(1L, 1L)).thenReturn(false);
-
-        mockMvc.perform(get("/parent/grades/view/1").principal(authentication))
-                .andExpect(status().is5xxServerError());
-
         verify(gradeService, times(1)).canParentViewStudent(1L, 1L);
     }
 

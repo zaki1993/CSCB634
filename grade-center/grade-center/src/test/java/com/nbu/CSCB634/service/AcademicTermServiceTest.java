@@ -14,6 +14,7 @@ import org.mockito.MockitoAnnotations;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -58,8 +59,8 @@ class AcademicTermServiceTest {
                 .startDate(LocalDate.now())
                 .endDate(LocalDate.now().plusMonths(6))
                 .school(school)
-                .subjects(List.of(subject))
-                .teachers(List.of(teacher))
+                .subjects(Set.of(subject))
+                .teachers(Set.of(teacher))
                 .build();
     }
 
@@ -173,8 +174,8 @@ class AcademicTermServiceTest {
                 .startDate(LocalDate.now().plusDays(1))
                 .endDate(LocalDate.now().plusMonths(7))
                 .school(school)
-                .subjects(List.of(subject))
-                .teachers(List.of(teacher))
+                .subjects(Set.of(subject))
+                .teachers(Set.of(teacher))
                 .build();
 
         when(academicTermRepository.findById(1L)).thenReturn(Optional.of(academicTerm));

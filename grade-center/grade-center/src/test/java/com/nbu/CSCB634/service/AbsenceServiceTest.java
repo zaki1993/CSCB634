@@ -1,6 +1,7 @@
 package com.nbu.CSCB634.service;
 
 import com.nbu.CSCB634.model.*;
+import com.nbu.CSCB634.model.auth.User;
 import com.nbu.CSCB634.repository.AbsenceRepository;
 import com.nbu.CSCB634.repository.ParentRepository;
 import com.nbu.CSCB634.repository.StudentRepository;
@@ -14,6 +15,7 @@ import org.mockito.MockitoAnnotations;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -52,10 +54,17 @@ class AbsenceServiceTest {
                 .name("Test School")
                 .build();
 
+        User user = User.builder()
+                .id(1L)
+                .username("student1")
+                .firstName("Child1")
+                .lastName("Student")
+                .email("teacher@test.com")
+                .role(Role.STUDENT)
+                .build();
         student = Student.builder()
                 .id(1L)
-                .firstName("John")
-                .lastName("Doe")
+                .user(user)
                 .school(school)
                 .build();
 
@@ -66,7 +75,7 @@ class AbsenceServiceTest {
 
         parent = Parent.builder()
                 .id(1L)
-                .students(List.of(student))
+                .students(Set.of(student))
                 .build();
 
         absence = Absence.builder()
@@ -291,7 +300,7 @@ class AbsenceServiceTest {
     void testGetAbsencesByParentId_NoStudents() {
         Parent parentWithNoStudents = Parent.builder()
                 .id(2L)
-                .students(List.of())
+                .students(Set.of())
                 .build();
 
         when(parentRepository.findById(2L)).thenReturn(Optional.of(parentWithNoStudents));
@@ -334,10 +343,17 @@ class AbsenceServiceTest {
 
     @Test
     void testGetAbsencesByParentAndStudent_StudentNotBelongToParent() {
+        User user = User.builder()
+                .id(1L)
+                .username("student1")
+                .firstName("Child1")
+                .lastName("Student")
+                .email("teacher@test.com")
+                .role(Role.STUDENT)
+                .build();
         Student otherStudent = Student.builder()
                 .id(2L)
-                .firstName("Jane")
-                .lastName("Smith")
+                .user(user)
                 .build();
 
         when(parentRepository.findById(1L)).thenReturn(Optional.of(parent));
@@ -360,10 +376,17 @@ class AbsenceServiceTest {
 
     @Test
     void testCanParentViewStudent_NotParentsChild() {
+        User user = User.builder()
+                .id(1L)
+                .username("student1")
+                .firstName("Child1")
+                .lastName("Student")
+                .email("teacher@test.com")
+                .role(Role.STUDENT)
+                .build();
         Student otherStudent = Student.builder()
                 .id(2L)
-                .firstName("Jane")
-                .lastName("Smith")
+                .user(user)
                 .build();
 
         when(parentRepository.findById(1L)).thenReturn(Optional.of(parent));
