@@ -22,9 +22,15 @@ public class TeacherService {
         return teacherRepository.save(teacher);
     }
 
-    @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'DIRECTOR', 'TEACHER')")
+    @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'DIRECTOR', 'TEACHER', 'PARENT', 'STUDENT')")
     public Optional<Teacher> getTeacherById(Long id) {
         return teacherRepository.findById(id);
+    }
+
+    @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'DIRECTOR', 'TEACHER')")
+    public Optional<Teacher> getTeacherByUserId(Long userId) {
+        // Благодарение на @MapsId, teacher.id е същото като user.id
+        return teacherRepository.findById(userId);
     }
 
     @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'DIRECTOR')")

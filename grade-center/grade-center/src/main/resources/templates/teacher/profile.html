@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="bg" xmlns:th="http://www.thymeleaf.org">
+<div th:insert="~{header :: head}"></div>
+<body class="d-flex flex-column min-vh-100">
+    <div th:replace="~{header :: header}"></div>
+
+    <div class="container mt-4">
+        <div class="row justify-content-center">
+            <div class="col-md-10">
+                <div class="card">
+                    <div class="card-header">
+                        <h4 class="mb-0">
+                            <i class="fas fa-chalkboard-teacher"></i>
+                            <span th:if="${isEdit}">Редактиране на моя профил</span>
+                            <span th:unless="${isEdit}">Моят профил</span>
+                        </h4>
+                    </div>
+                    <div class="card-body">
+                        <!-- Съобщения -->
+                        <div th:if="${successMessage}" class="alert alert-success alert-dismissible fade show" role="alert">
+                            <i class="fas fa-check-circle"></i> <span th:text="${successMessage}"></span>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+
+                        <div th:if="${errorMessage}" class="alert alert-danger alert-dismissible fade show" role="alert">
+                            <i class="fas fa-exclamation-circle"></i> <span th:text="${errorMessage}"></span>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+
+                        <!-- Форма за редактиране или показване на данни -->
+                        <form th:if="${isEdit}" th:action="@{/teacher/profile/edit}" 
+                              th:object="${teacher}" 
+                              method="post" 
+                              novalidate>
+                            
+                            <!-- Скрити полета за запазване на данни -->
+                            <input type="hidden" th:field="*{id}">
+                            <input type="hidden" th:field="*{username}">
+                            <input type="hidden" th:field="*{schoolId}">
+                            
+                            <div class="row">
+                                <!-- Лични данни -->
+                                <div class="col-md-6">
+                                    <h6 class="text-primary mb-3">Лични данни</h6>
+                                    
+                                    <!-- Потребителско име (само за четене) -->
+                                    <div class="mb-3">
+                                        <label for="usernameDisplay" class="form-label">Потребителско име</label>
+                                        <input type="text" 
+                                               class="form-control" 
+                                               id="usernameDisplay" 
+                                               th:value="${teacher.username}"
+                                               readonly>
+                                        <div class="form-text">Потребителското име не може да бъде променено</div>
+                                    </div>
+
+                                    <!-- Първо име -->
+                                    <div class="mb-3">
+                                        <label for="firstName" class="form-label">Първо име <span class="text-danger">*</span></label>
+                                        <input type="text" 
+                                               class="form-control" 
+                                               id="firstName" 
+                                               name="firstName"
+                                               th:field="*{firstName}"
+                                               th:classappend="${#fields.hasErrors('firstName')} ? 'is-invalid' : ''"
+                                               placeholder="Въведете първо име"
+                                               required>
+                                        <div th:if="${#fields.hasErrors('firstName')}" class="invalid-feedback">
+                                            <span th:each="error : ${#fields.errors('firstName')}" th:text="${error}"></span>
+                                        </div>
+                                    </div>
+
+                                    <!-- Фамилия -->
+                                    <div class="mb-3">
+                                        <label for="lastName" class="form-label">Фамилия <span class="text-danger">*</span></label>
+                                        <input type="text" 
+                                               class="form-control" 
+                                               id="lastName" 
+                                               name="lastName"
+                                               th:field="*{lastName}"
+                                               th:classappend="${#fields.hasErrors('lastName')} ? 'is-invalid' : ''"
+                                               placeholder="Въведете фамилия"
+                                               required>
+                                        <div th:if="${#fields.hasErrors('lastName')}" class="invalid-feedback">
+                                            <span th:each="error : ${#fields.errors('lastName')}" th:text="${error}"></span>
+                                        </div>
+                                    </div>
+
+                                    <!-- Имейл -->
+                                    <div class="mb-3">
+                                        <label for="email" class="form-label">Имейл <span class="text-danger">*</span></label>
+                                        <input type="email" 
+                                               class="form-control" 
+                                               id="email" 
+                                               name="email"
+                                               th:field="*{email}"
+                                               th:classappend="${#fields.hasErrors('email')} ? 'is-invalid' : ''"
+                                               placeholder="Въведете имейл адрес"
+                                               required>
+                                        <div th:if="${#fields.hasErrors('email')}" class="invalid-feedback">
+                                            <span th:each="error : ${#fields.errors('email')}" th:text="${error}"></span>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Професионални данни (само за четене) -->
+                                <div class="col-md-6">
+                                    <h6 class="text-primary mb-3">Професионални данни</h6>
+                                    
+                                    <!-- Училище -->
+                                    <div class="mb-3">
+                                        <label for="schoolName" class="form-label">Училище</label>
+                                        <input type="text" 
+                                               class="form-control" 
+                                               id="schoolName" 
+                                               th:value="${teacher.schoolName}"
+                                               readonly>
+                                        <div class="form-text">Училището може да бъде променено само от администратор</div>
+                                    </div>
+
+                                    <!-- Квалифицирани предмети -->
+                                    <div class="mb-3">
+                                        <label for="qualifiedSubjects" class="form-label">Квалифицирани предмети</label>
+                                        <textarea class="form-control" 
+                                                  id="qualifiedSubjects" 
+                                                  th:text="${teacher.qualifiedSubjectNames}"
+                                                  rows="3"
+                                                  readonly></textarea>
+                                        <div class="form-text">Квалифицираните предмети се управляват от администратор</div>
+                                    </div>
+
+                                    <!-- Информация за промените -->
+                                    <div class="alert alert-info">
+                                        <h6><i class="fas fa-info-circle"></i> Информация</h6>
+                                        <p class="mb-0 small">Можете да променяте само личните си данни.</p>
+                                        <p class="mb-0 small">Професионалните данни се управляват от администратора.</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Бутони -->
+                            <div class="d-flex justify-content-between mt-4">
+                                <a th:href="@{/teacher/profile}" class="btn btn-secondary">
+                                    <i class="fas fa-arrow-left"></i> Назад
+                                </a>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save"></i> Запази промените
+                                </button>
+                            </div>
+                        </form>
+
+                        <!-- Показване на данни (не редактиране) -->
+                        <div th:unless="${isEdit}">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <h6 class="text-primary mb-3">Лични данни</h6>
+                                    <table class="table table-bordered">
+                                        <tr>
+                                            <th class="bg-light" style="width: 40%;">Потребителско име:</th>
+                                            <td th:text="${teacher.username}"></td>
+                                        </tr>
+                                        <tr>
+                                            <th class="bg-light">Първо име:</th>
+                                            <td th:text="${teacher.firstName}"></td>
+                                        </tr>
+                                        <tr>
+                                            <th class="bg-light">Фамилия:</th>
+                                            <td th:text="${teacher.lastName}"></td>
+                                        </tr>
+                                        <tr>
+                                            <th class="bg-light">Имейл:</th>
+                                            <td th:text="${teacher.email}"></td>
+                                        </tr>
+                                    </table>
+                                </div>
+                                <div class="col-md-6">
+                                    <h6 class="text-primary mb-3">Професионални данни</h6>
+                                    <table class="table table-bordered">
+                                        <tr>
+                                            <th class="bg-light" style="width: 40%;">Училище:</th>
+                                            <td th:text="${teacher.schoolName}"></td>
+                                        </tr>
+                                        <tr>
+                                            <th class="bg-light">Квалифицирани предмети:</th>
+                                            <td th:text="${teacher.qualifiedSubjectNames}"></td>
+                                        </tr>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <!-- Бутон за редактиране -->
+                            <div class="d-flex justify-content-end mt-4">
+                                <a th:href="@{/teacher/profile/edit}" class="btn btn-warning">
+                                    <i class="fas fa-edit"></i> Редактирай профила
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Помощна информация -->
+                <div class="card mt-4">
+                    <div class="card-header">
+                        <h6 class="mb-0">Помощна информация</h6>
+                    </div>
+                    <div class="card-body">
+                        <ul class="mb-0">
+                            <li>Можете да променяте само личните си данни (име, фамилия, имейл)</li>
+                            <li>Потребителското име не може да бъде променено</li>
+                            <li>Професионалните данни се управляват от администратора</li>
+                            <li>При нужда от промяна на училище или предмети, свържете се с администратора</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div th:replace="~{footer :: footer}"></div>
+</body>
+</html> 

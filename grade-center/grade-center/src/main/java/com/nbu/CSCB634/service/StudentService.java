@@ -28,6 +28,13 @@ public class StudentService {
         return studentRepository.findById(id);
     }
 
+    @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'DIRECTOR', 'TEACHER', 'PARENT', 'STUDENT')")
+    public Optional<Student> getStudentByUserId(Long userId) {
+        return studentRepository.findAll().stream()
+                .filter(student -> student.getUser() != null && student.getUser().getId().equals(userId))
+                .findFirst();
+    }
+
   @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'DIRECTOR')")
   public List<Student> getStudentsBySchoolId(Long schoolId) {
     return studentRepository.findAll().stream()
@@ -51,6 +58,22 @@ public class StudentService {
                     return studentRepository.save(student);
                 })
                 .orElseThrow(() -> new IllegalArgumentException("Student not found"));
+    }
+
+    // Специален метод за обновяване на собствения профил от ученик
+    @PreAuthorize("hasRole('STUDENT')")
+    public Student updateOwnProfile(Long userId, String firstName, String lastName, String email) {
+        Optional<Student> studentOpt = getStudentByUserId(userId);
+        if (studentOpt.isEmpty()) {
+            throw new IllegalArgumentException("Student not found");
+        }
+        
+        Student student = studentOpt.get();
+        student.getUser().setFirstName(firstName);
+        student.getUser().setLastName(lastName);
+        student.getUser().setEmail(email);
+        
+        return studentRepository.save(student);
     }
 
     @PreAuthorize("hasRole('ADMINISTRATOR')")

@@ -28,9 +28,8 @@ public class DirectorService {
 
     @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'DIRECTOR')")
     public Optional<Director> getDirectorByUserId(Long userId) {
-        return directorRepository.findAll().stream()
-                .filter(director -> director.getUser().getId().equals(userId))
-                .findFirst();
+        // Благодарение на @MapsId, director.id е същото като user.id
+        return directorRepository.findById(userId);
     }
 
     @PreAuthorize("hasAnyRole('ADMINISTRATOR', 'DIRECTOR')")

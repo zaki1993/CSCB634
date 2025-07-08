@@ -190,20 +190,37 @@
             const schoolId = document.getElementById('schoolId').value;
             const schoolClassSelect = document.getElementById('schoolClassId');
             
+            console.log('Loading classes for school ID:', schoolId);
+            
             // Изчистване на класовете
             schoolClassSelect.innerHTML = '<option value="">Изберете клас (опционално)</option>';
             
             if (schoolId) {
                 const url = '/students/api/school-classes?schoolId=' + schoolId;
+                console.log('Fetching URL:', url);
+                
+                // Показваме зареждане
+                const loadingOption = document.createElement('option');
+                loadingOption.value = '';
+                loadingOption.textContent = 'Зарежда се...';
+                schoolClassSelect.appendChild(loadingOption);
                 
                 fetch(url)
                     .then(response => {
+                        console.log('Response status:', response.status);
+                        console.log('Response headers:', response.headers);
+                        
                         if (!response.ok) {
-                            throw new Error('Network response was not ok: ' + response.status);
+                            throw new Error('Network response was not ok: ' + response.status + ' ' + response.statusText);
                         }
                         return response.json();
                     })
                     .then(classes => {
+                        console.log('Received classes:', classes);
+                        
+                        // Изчистваме отново за да премахнем "Зарежда се..."
+                        schoolClassSelect.innerHTML = '<option value="">Изберете клас (опционално)</option>';
+                        
                         if (classes && classes.length > 0) {
                             classes.forEach(schoolClass => {
                                 const option = document.createElement('option');
@@ -211,25 +228,35 @@
                                 option.textContent = schoolClass.name;
                                 schoolClassSelect.appendChild(option);
                             });
+                            console.log('Successfully loaded', classes.length, 'classes');
                         } else {
                             const option = document.createElement('option');
                             option.value = '';
                             option.textContent = 'Няма класове в това училище';
                             schoolClassSelect.appendChild(option);
+                            console.log('No classes found for school ID:', schoolId);
                         }
                     })
                     .catch(error => {
-                        console.error('Грешка при зареждане на класовете:', error);
+                        console.error('Error loading classes:', error);
+                        console.error('Error details:', error.message);
+                        
+                        // Изчистваме отново за да премахнем "Зарежда се..."
+                        schoolClassSelect.innerHTML = '<option value="">Изберете клас (опционално)</option>';
+                        
                         const option = document.createElement('option');
                         option.value = '';
                         option.textContent = 'Грешка при зареждането на класовете';
                         schoolClassSelect.appendChild(option);
                     });
+            } else {
+                console.log('No school selected');
             }
         }
         
         // Зареждане на класовете при първоначално зареждане на страницата
         window.addEventListener('load', function() {
+            console.log('Page loaded, checking for existing school selection');
             loadSchoolClasses();
         });
     </script>
