@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="bg" xmlns:th="http://www.thymeleaf.org">
+<div th:insert="~{header :: head}"></div>
+<body class="d-flex flex-column min-vh-100">
+    <div th:replace="~{header :: header}"></div>
+
+    <div class="container mt-4">
+        <div class="row">
+            <div class="col-12">
+                <!-- Навигационни бутони -->
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <a th:href="@{/subjects}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left"></i> Назад към списъка
+                    </a>
+                    <div th:if="${T(com.nbu.CSCB634.global.AccessControlConfig).isAdmin()} or ${T(com.nbu.CSCB634.global.AccessControlConfig).isDirector()}">
+                        <a th:href="@{/subjects/{id}/edit(id=${subject.id})}" class="btn btn-outline-warning">
+                            <i class="fas fa-edit"></i> Редактирай
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Информация за предмета -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="mb-0">
+                            <i class="fas fa-book"></i> 
+                            <span th:text="${subject.name}"></span>
+                        </h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <table class="table table-bordered">
+                                    <tr>
+                                        <th class="bg-light" style="width: 30%;">ID:</th>
+                                        <td th:text="${subject.id}"></td>
+                                    </tr>
+                                    <tr>
+                                        <th class="bg-light">Име:</th>
+                                        <td th:text="${subject.name}"></td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <div class="col-md-6">
+                                <!-- Допълнителна информация може да бъде добавена тук -->
+                                <div class="card bg-light">
+                                    <div class="card-header">
+                                        <h6 class="mb-0">Статистики</h6>
+                                    </div>
+                                    <div class="card-body">
+                                        <p class="text-muted">
+                                            <small>
+                                                <i class="fas fa-info-circle"></i>
+                                                Статистики за учители, оценки и отсъствия по този предмет ще бъдат показани тук в бъдеще.
+                                            </small>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Секция за свързани данни -->
+                <div class="row mt-4">
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <h6 class="mb-0">
+                                    <i class="fas fa-chalkboard-teacher"></i> Учители
+                                </h6>
+                            </div>
+                            <div class="card-body text-center">
+                                <p class="text-muted">Списък с учители, квалифицирани за този предмет</p>
+                                <a href="#" class="btn btn-outline-primary btn-sm disabled">
+                                    <i class="fas fa-list"></i> Виж всички
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <h6 class="mb-0">
+                                    <i class="fas fa-star"></i> Оценки
+                                </h6>
+                            </div>
+                            <div class="card-body text-center">
+                                <p class="text-muted">Всички оценки по този предмет</p>
+                                <a href="#" class="btn btn-outline-primary btn-sm disabled">
+                                    <i class="fas fa-list"></i> Виж всички
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-header">
+                                <h6 class="mb-0">
+                                    <i class="fas fa-calendar-times"></i> Отсъствия
+                                </h6>
+                            </div>
+                            <div class="card-body text-center">
+                                <p class="text-muted">Всички отсъствия по този предмет</p>
+                                <a href="#" class="btn btn-outline-primary btn-sm disabled">
+                                    <i class="fas fa-list"></i> Виж всички
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Действия -->
+                <div class="card mt-4" th:if="${T(com.nbu.CSCB634.global.AccessControlConfig).isAdmin()}">
+                    <div class="card-header bg-danger text-white">
+                        <h6 class="mb-0">
+                            <i class="fas fa-exclamation-triangle"></i> Опасна зона
+                        </h6>
+                    </div>
+                    <div class="card-body">
+                        <p class="text-danger">
+                            <strong>Внимание:</strong> Изтриването на предмета ще премахне всички свързани данни и не може да бъде отменено.
+                        </p>
+                        <button type="button" 
+                                class="btn btn-outline-danger" 
+                                onclick="confirmDelete()"
+                                th:data-subject-id="${subject.id}"
+                                th:data-subject-name="${subject.name}">
+                            <i class="fas fa-trash"></i> Изтрий предмета
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal за потвърждение на изтриване -->
+    <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteModalLabel">Потвърждение за изтриване</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Сигурни ли сте, че искате да изтриете предмета <strong th:text="${subject.name}"></strong>?</p>
+                    <p class="text-danger">Това действие не може да бъде отменено.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отказ</button>
+                    <form th:action="@{/subjects/{id}/delete(id=${subject.id})}" method="post" style="display: inline;">
+                        <button type="submit" class="btn btn-danger">Изтрий</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div th:replace="~{footer :: footer}"></div>
+
+    <script>
+        function confirmDelete() {
+            const modal = new bootstrap.Modal(document.getElementById('deleteModal'));
+            modal.show();
+        }
+    </script>
+</body>
+</html> 

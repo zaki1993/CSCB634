@@ -194,18 +194,36 @@
             schoolClassSelect.innerHTML = '<option value="">Изберете клас (опционално)</option>';
             
             if (schoolId) {
-                fetch('/students/api/school-classes?schoolId=' + schoolId)
-                    .then(response => response.json())
+                const url = '/students/api/school-classes?schoolId=' + schoolId;
+                
+                fetch(url)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error('Network response was not ok: ' + response.status);
+                        }
+                        return response.json();
+                    })
                     .then(classes => {
-                        classes.forEach(schoolClass => {
+                        if (classes && classes.length > 0) {
+                            classes.forEach(schoolClass => {
+                                const option = document.createElement('option');
+                                option.value = schoolClass.id;
+                                option.textContent = schoolClass.name;
+                                schoolClassSelect.appendChild(option);
+                            });
+                        } else {
                             const option = document.createElement('option');
-                            option.value = schoolClass.id;
-                            option.textContent = schoolClass.name;
+                            option.value = '';
+                            option.textContent = 'Няма класове в това училище';
                             schoolClassSelect.appendChild(option);
-                        });
+                        }
                     })
                     .catch(error => {
                         console.error('Грешка при зареждане на класовете:', error);
+                        const option = document.createElement('option');
+                        option.value = '';
+                        option.textContent = 'Грешка при зареждането на класовете';
+                        schoolClassSelect.appendChild(option);
                     });
             }
         }

@@ -52,6 +52,9 @@
                     <li class="nav-item" th:if="${T(com.nbu.CSCB634.global.AccessControlConfig).isAdmin() or T(com.nbu.CSCB634.global.AccessControlConfig).isDirector() or T(com.nbu.CSCB634.global.AccessControlConfig).isTeacher()}">
                         <a class="nav-link" href="/parents">Родители</a>
                     </li>
+                    <li class="nav-item" th:if="${T(com.nbu.CSCB634.global.AccessControlConfig).isAdmin() or T(com.nbu.CSCB634.global.AccessControlConfig).isDirector() or T(com.nbu.CSCB634.global.AccessControlConfig).isTeacher()}">
+                        <a class="nav-link" href="/subjects">Предмети</a>
+                    </li>
                     <li class="nav-item" th:if="${T(com.nbu.CSCB634.global.AccessControlConfig).isAdmin() or T(com.nbu.CSCB634.global.AccessControlConfig).isDirector()}">
                         <a class="nav-link" href="/student-enrollment">Записване в класове</a>
                     </li>
